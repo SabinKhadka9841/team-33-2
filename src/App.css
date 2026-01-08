@@ -6596,23 +6596,43 @@ button, a, .game-card, .provider-btn, .page-btn, .dot, .carousel-btn, .badge {
     padding: 6px 10px;
   }
 
-  /* Check-in grid - better mobile layout */
+  /* ===== DAILY REWARDS - MOBILE REWORK ===== */
+  .checkin-card.modern-card {
+    padding: 16px;
+  }
+
+  .checkin-card .card-header {
+    margin-bottom: 14px;
+  }
+
+  /* 7-day grid - horizontal scroll on very small screens */
   .checkin-grid {
-    grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+    margin-bottom: 18px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
   }
 
   .checkin-box {
+    flex: 0 0 calc((100% - 36px) / 7);
+    min-width: 38px;
     padding: 8px 4px;
-    border-radius: 8px;
+    border-radius: 10px;
+  }
+
+  .box-content {
+    gap: 4px;
   }
 
   .checkin-box .day-label {
-    font-size: 8px;
+    font-size: 9px;
   }
 
   .reward-amount {
-    font-size: 9px;
+    font-size: 8px;
     padding: 2px 4px;
   }
 
@@ -6631,15 +6651,19 @@ button, a, .game-card, .provider-btn, .page-btn, .dot, .carousel-btn, .badge {
     height: 12px;
   }
 
+  /* Claim button - clearly below the grid */
   .claim-btn {
     padding: 14px 20px;
     font-size: 14px;
     border-radius: 12px;
+    width: 100%;
+    margin-top: 0;
   }
 
   .checkin-countdown {
     font-size: 11px;
     padding: 10px 12px;
+    margin-top: 14px;
   }
 
   /* Transaction list */
@@ -6828,14 +6852,29 @@ button, a, .game-card, .provider-btn, .page-btn, .dot, .carousel-btn, .badge {
     border-radius: 14px;
   }
 
-  /* Smaller check-in grid */
+  /* ===== DAILY REWARDS - EXTRA SMALL SCREENS ===== */
+  .checkin-card.modern-card {
+    padding: 12px;
+  }
+
+  .checkin-card .card-header {
+    margin-bottom: 12px;
+  }
+
   .checkin-grid {
-    gap: 3px;
+    gap: 4px;
+    margin-bottom: 14px;
   }
 
   .checkin-box {
-    padding: 6px 2px;
-    border-radius: 6px;
+    flex: 0 0 calc((100% - 24px) / 7);
+    min-width: 34px;
+    padding: 6px 3px;
+    border-radius: 8px;
+  }
+
+  .box-content {
+    gap: 3px;
   }
 
   .checkin-box .day-label {
@@ -6843,23 +6882,33 @@ button, a, .game-card, .provider-btn, .page-btn, .dot, .carousel-btn, .badge {
   }
 
   .reward-amount {
-    font-size: 8px;
+    font-size: 7px;
     padding: 2px 3px;
   }
 
   .gift-icon svg {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
   }
 
   .checked-icon {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .checked-icon svg {
+    width: 10px;
+    height: 10px;
   }
 
   .claim-btn {
     padding: 12px 16px;
     font-size: 13px;
+  }
+
+  .checkin-countdown {
+    margin-top: 10px;
+    font-size: 10px;
   }
 
   /* Smaller action tabs */
@@ -6885,4 +6934,46 @@ button, a, .game-card, .provider-btn, .page-btn, .dot, .carousel-btn, .badge {
     padding: 10px;
     font-size: 12px;
   }
+}
+
+/* ================================
+   PAGE LOADER - Lazy Loading
+   ================================ */
+.page-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  width: 100%;
+  padding: 40px;
+}
+
+.loader-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(16, 185, 129, 0.2);
+  border-top-color: var(--primary-light);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Full page loader variant */
+.page-loader.fullscreen {
+  position: fixed;
+  inset: 0;
+  min-height: 100vh;
+  background: var(--bg-primary);
+  z-index: 9999;
+}
+
+.page-loader.fullscreen .loader-spinner {
+  width: 56px;
+  height: 56px;
+  border-width: 5px;
 }
