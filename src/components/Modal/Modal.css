@@ -127,14 +127,15 @@
 
 @media (max-width: 768px) {
   .modal-overlay {
-    padding: 10px;
-    align-items: flex-end;
+    padding: 16px;
+    align-items: center;
+    justify-content: center;
   }
 
   .modal {
     max-height: 85vh;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
+    border-radius: var(--radius-lg, 16px);
+    margin: auto;
   }
 
   .modal-header {
@@ -143,5 +144,23 @@
 
   .modal-content {
     padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-overlay {
+    padding: 12px;
+  }
+
+  .modal {
+    max-height: 90vh;
+  }
+
+  .modal-header {
+    padding: 14px 16px;
+  }
+
+  .modal-content {
+    padding: 16px;
   }
 }

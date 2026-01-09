@@ -1,13 +1,17 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { gameService } from '../services/gameService'
 import { apiClient } from '../services/api'
+import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
+import { useTranslation } from '../context/TranslationContext'
 import LoadingSpinner from '../components/LoadingSpinner/LoadingSpinner'
 import Pagination from '../components/Pagination/Pagination'
 import GameDetailModal from '../components/GameDetailModal/GameDetailModal'
 import defaultBanner1 from '../images/New banner.png'
 import defaultBanner2 from '../images/New banner 2.png'
 import defaultBanner3 from '../images/New banner 3.png'
-import belowBanner from '../images/below banner.png'
+import belowBanner from '../images/new r banner.png'
 
 const defaultBanners = [
   { id: 'default1', image: defaultBanner1, name: 'Banner 1', link: '' },
@@ -16,11 +20,57 @@ const defaultBanners = [
 ]
 const BANNER_DURATION = 5000 // 5 seconds per banner
 
+// Lazy loading image component
+function LazyImage({ src, alt, className }) {
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [isInView, setIsInView] = useState(false)
+  const imgRef = useRef(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true)
+          observer.disconnect()
+        }
+      },
+      { rootMargin: '100px', threshold: 0.1 }
+    )
+
+    if (imgRef.current) {
+      observer.observe(imgRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div ref={imgRef} className={`lazy-image-container ${isLoaded ? 'loaded' : ''}`}>
+      {isInView ? (
+        <img
+          src={src}
+          alt={alt}
+          className={className}
+          onLoad={() => setIsLoaded(true)}
+          style={{ opacity: isLoaded ? 1 : 0 }}
+        />
+      ) : (
+        <div className="image-placeholder" />
+      )}
+      {!isLoaded && isInView && <div className="image-loader" />}
+    </div>
+  )
+}
+
 export default function Home() {
+  const navigate = useNavigate()
+  const { isAuthenticated, user } = useAuth()
+  const { showToast } = useToast()
+  const { t } = useTranslation()
+
   const [games, setGames] = useState([])
-  const [providers, setProviders] = useState([{ id: 'ALL', name: 'ALL' }])
   const [loading, setLoading] = useState(true)
-  const [activeProvider, setActiveProvider] = useState('ALL')
+  const [launchingGame, setLaunchingGame] = useState(null)
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 })
   const [selectedGame, setSelectedGame] = useState(null)
 
@@ -39,25 +89,13 @@ export default function Home() {
     fetchBanners()
   }, [])
 
-  // Fetch providers on mount
-  useEffect(() => {
-    const fetchProviders = async () => {
-      const result = await gameService.getProviders()
-      if (result.success && result.data?.providers) {
-        setProviders(result.data.providers)
-      }
-    }
-    fetchProviders()
-  }, [])
-
   // Fetch games
   const fetchGames = async () => {
     setLoading(true)
     const result = await gameService.getGames({
       page: pagination.page,
-      limit: 36,
-      provider: activeProvider,
-      gameType: 'slot'
+      limit: 10,
+      gameType: 'all'
     })
 
     if (result.success) {
@@ -73,16 +111,12 @@ export default function Home() {
 
   useEffect(() => {
     fetchGames()
-  }, [pagination.page, activeProvider])
-
-  const handleProviderChange = (provider) => {
-    setActiveProvider(provider)
-    setPagination(prev => ({ ...prev, page: 1 }))
-  }
+  }, [pagination.page])
 
   const handlePageChange = (newPage) => {
     setPagination(prev => ({ ...prev, page: newPage }))
-    window.scrollTo({ top: 400, behavior: 'smooth' })
+    // Scroll to games section without visible animation
+    window.scrollTo({ top: 350, behavior: 'instant' })
   }
 
   const nextBanner = () => {
@@ -100,6 +134,40 @@ export default function Home() {
     }, BANNER_DURATION)
     return () => clearInterval(interval)
   }, [banners.length])
+
+  // Handle play now button click
+  const handlePlayNow = async (game, e) => {
+    if (e) e.stopPropagation()
+
+    if (!isAuthenticated) {
+      showToast(t('pleaseLoginToPlay'), 'warning')
+      navigate('/login')
+      return
+    }
+
+    // Prevent double clicks
+    if (launchingGame === game.id) return
+
+    setLaunchingGame(game.id)
+    showToast(`Launching ${game.name}...`, 'info')
+
+    try {
+      const result = await gameService.requestGameUrl(game.id, user?.id)
+
+      if (result.success && result.gameUrl) {
+        // Open game in new tab or redirect
+        window.open(result.gameUrl, '_blank')
+        showToast(`${game.name} launched!`, 'success')
+      } else {
+        showToast(result.error || 'Failed to launch game', 'error')
+      }
+    } catch (error) {
+      console.error('Game launch error:', error)
+      showToast('Failed to launch game. Please try again.', 'error')
+    } finally {
+      setLaunchingGame(null)
+    }
+  }
 
   return (
     <>
@@ -158,48 +226,39 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Provider Filters */}
-      <div className="provider-filters">
-        {providers.map((provider) => (
-          <button
-            key={provider.id}
-            className={`provider-btn ${activeProvider === provider.id ? 'active' : ''}`}
-            onClick={() => handleProviderChange(provider.id)}
-          >
-            {provider.name}
-          </button>
-        ))}
-      </div>
-
       {/* Games Count */}
       {!loading && (
         <div className="games-count">
-          Showing {games.length} of {pagination.total} games
+          {t('showingGames', { count: games.length, total: pagination.total })}
         </div>
       )}
 
       {/* Game Grid */}
       {loading ? (
         <div className="loading-wrapper">
-          <LoadingSpinner text="Loading games..." />
+          <LoadingSpinner text={t('loadingGames')} />
         </div>
       ) : games.length === 0 ? (
         <div className="empty-games">
           <span className="empty-icon">🎮</span>
-          <h3>No games found</h3>
-          <p>Try selecting a different provider</p>
+          <h3>{t('noGames')}</h3>
+          <p>{t('tryAgainLater')}</p>
         </div>
       ) : (
         <div className="game-grid">
           {games.map((game) => (
             <div key={game.id} className="game-card" onClick={() => setSelectedGame(game)}>
               <div className="game-image-wrapper">
-                <img src={game.image} alt={game.name} className="game-image" />
-                {game.isHot && <span className="game-badge hot">HOT</span>}
-                {game.isNew && <span className="game-badge new">NEW</span>}
+                <LazyImage src={game.image} alt={game.name} className="game-image" />
+                {game.isHot && <span className="game-badge hot">{t('hot')}</span>}
+                {game.isNew && <span className="game-badge new">{t('new')}</span>}
                 <div className="game-overlay">
-                  <button className="play-btn" onClick={(e) => { e.stopPropagation(); setSelectedGame(game); }}>
-                    Play Now
+                  <button
+                    className={`play-btn ${launchingGame === game.id ? 'loading' : ''}`}
+                    onClick={(e) => handlePlayNow(game, e)}
+                    disabled={launchingGame === game.id}
+                  >
+                    {launchingGame === game.id ? t('launching') : t('playNow')}
                   </button>
                 </div>
               </div>

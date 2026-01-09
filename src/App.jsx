@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
+import { TranslationProvider } from './context/TranslationContext'
 import ToastContainer from './components/Toast/Toast'
 import Layout from './components/Layout'
 import './App.css'
@@ -28,14 +29,24 @@ const PageLoader = () => (
   </div>
 )
 
+// Layout wrapper for pages that need it
+const WithLayout = ({ children }) => (
+  <Layout>
+    <Suspense fallback={<PageLoader />}>
+      {children}
+    </Suspense>
+  </Layout>
+)
+
 function App() {
   return (
-    <AuthProvider>
-      <ToastProvider>
-        <Router>
-          <ToastContainer />
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
+    <TranslationProvider>
+      <AuthProvider>
+        <ToastProvider>
+          <Router>
+            <ToastContainer />
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
               {/* Auth Routes - No Layout */}
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
@@ -43,34 +54,27 @@ function App() {
               <Route path="/terms" element={<Terms />} />
 
               {/* Main Routes - With Layout */}
-              <Route path="/*" element={
-                <Layout>
-                  <Suspense fallback={<PageLoader />}>
-                    <Routes>
-                      <Route path="/" element={<Home />} />
-                      <Route path="/sports" element={<Sports />} />
-                      <Route path="/live-casino" element={<LiveCasino />} />
-                      <Route path="/slot" element={<Slot />} />
-                      <Route path="/card-game" element={<Slot />} />
-                      <Route path="/fishing" element={<Slot />} />
-                      <Route path="/esport" element={<Sports />} />
-                      <Route path="/instant-win" element={<Slot />} />
-                      <Route path="/promotions" element={<Promotions />} />
-                      <Route path="/livechat" element={<LiveChat />} />
+              <Route path="/" element={<WithLayout><Home /></WithLayout>} />
+              <Route path="/sports" element={<WithLayout><Sports /></WithLayout>} />
+              <Route path="/live-casino" element={<WithLayout><LiveCasino /></WithLayout>} />
+              <Route path="/slot" element={<WithLayout><Slot /></WithLayout>} />
+              <Route path="/card-game" element={<WithLayout><Slot /></WithLayout>} />
+              <Route path="/fishing" element={<WithLayout><Slot /></WithLayout>} />
+              <Route path="/esport" element={<WithLayout><Sports /></WithLayout>} />
+              <Route path="/instant-win" element={<WithLayout><Slot /></WithLayout>} />
+              <Route path="/promotions" element={<WithLayout><Promotions /></WithLayout>} />
+              <Route path="/livechat" element={<WithLayout><LiveChat /></WithLayout>} />
 
-                      {/* User Routes - No login required for dev */}
-                      <Route path="/wallet" element={<Wallet />} />
-                      <Route path="/history" element={<History />} />
-                      <Route path="/settings" element={<Settings />} />
-                    </Routes>
-                  </Suspense>
-                </Layout>
-              } />
-            </Routes>
-          </Suspense>
-        </Router>
-      </ToastProvider>
-    </AuthProvider>
+              {/* User Routes - No login required for dev */}
+              <Route path="/wallet" element={<WithLayout><Wallet /></WithLayout>} />
+              <Route path="/history" element={<WithLayout><History /></WithLayout>} />
+              <Route path="/settings" element={<WithLayout><Settings /></WithLayout>} />
+              </Routes>
+            </Suspense>
+          </Router>
+        </ToastProvider>
+      </AuthProvider>
+    </TranslationProvider>
   )
 }
 

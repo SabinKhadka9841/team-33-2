@@ -194,9 +194,26 @@
   color: var(--text-gray);
 }
 
+.promo-empty .empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.promo-empty h3 {
+  font-size: 28px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #fff 0%, var(--accent, #4ade80) 50%, var(--primary-light, #22c55e) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 12px;
+}
+
 .promo-empty p {
   font-size: 16px;
   margin: 0;
+  color: var(--text-secondary, #a1a1aa);
 }
 
 /* Promo Card Enhancements */
@@ -224,6 +241,7 @@
 /* Responsive */
 @media (max-width: 768px) {
   .promotions-page {
+    padding-top: 8px;
     padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
   }
 

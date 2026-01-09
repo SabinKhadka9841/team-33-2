@@ -1,4 +1,25 @@
-// Base API configuration
+/**
+ * API Configuration
+ *
+ * Backend Developer Notes:
+ * ========================
+ * Set VITE_API_URL in .env file to point to your backend.
+ *
+ * Required Endpoints:
+ * -------------------
+ * POST /games/launch
+ *   Request:  { gameId: number, gameSlug: string, userId: string|null }
+ *   Response: { success: boolean, gameUrl: string } or { success: false, error: string }
+ *
+ * GET /games
+ *   Query: page, limit, provider, search, gameType, isHot, isNew
+ *   Response: { success: true, data: { games: [], pagination: {} } }
+ *
+ * GET /banners
+ *   Response: { success: true, data: { banners: [{ id, image, name, link }] } }
+ *
+ * All endpoints should return { success: boolean, data?: any, error?: string }
+ */
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 // LocalStorage keys

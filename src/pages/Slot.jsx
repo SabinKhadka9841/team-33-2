@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { gameService } from '../services/gameService'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
@@ -7,37 +8,63 @@ import Pagination from '../components/Pagination/Pagination'
 import LoadingSpinner from '../components/LoadingSpinner/LoadingSpinner'
 import './Slot.css'
 
-const providers = [
-  { id: 'ALL', name: 'ALL' },
-  { id: 'RG', name: 'RG' },
-  { id: 'PLAYSTAR', name: 'PLAYSTAR' },
-  { id: 'BNG', name: 'BNG' },
-  { id: 'REEVO', name: 'REEVO' },
-  { id: 'JILI', name: 'JILI' },
-  { id: 'FACHAI', name: 'FACHAI' },
-  { id: 'RICH88', name: 'RICH88' },
-  { id: 'BGM', name: 'BGM' },
-  { id: 'YGG', name: 'YGG' },
-  { id: 'NAGA', name: 'NAGA' },
-  { id: 'VPOWER', name: 'VPOWER' },
-  { id: 'JDB', name: 'JDB' },
-  { id: 'SG', name: 'SG' },
-]
-
 const tabs = [
   { id: 'all', label: 'All Games', icon: '🎰' },
   { id: 'hot', label: 'Hot Games', icon: '🔥' },
   { id: 'new', label: 'New Games', icon: null, badge: 'NEW' },
 ]
 
+// Lazy loading image component
+function LazyImage({ src, alt, className }) {
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [isInView, setIsInView] = useState(false)
+  const imgRef = useRef(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true)
+          observer.disconnect()
+        }
+      },
+      { rootMargin: '100px', threshold: 0.1 }
+    )
+
+    if (imgRef.current) {
+      observer.observe(imgRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div ref={imgRef} className={`lazy-image-container ${isLoaded ? 'loaded' : ''}`}>
+      {isInView ? (
+        <img
+          src={src}
+          alt={alt}
+          className={className}
+          onLoad={() => setIsLoaded(true)}
+          style={{ opacity: isLoaded ? 1 : 0 }}
+        />
+      ) : (
+        <div className="image-placeholder" />
+      )}
+      {!isLoaded && isInView && <div className="image-loader" />}
+    </div>
+  )
+}
+
 export default function Slot() {
-  const { isAuthenticated } = useAuth()
+  const navigate = useNavigate()
+  const { isAuthenticated, user } = useAuth()
   const { showToast } = useToast()
 
   const [games, setGames] = useState([])
   const [featuredGame, setFeaturedGame] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [activeProvider, setActiveProvider] = useState('ALL')
+  const [launchingGame, setLaunchingGame] = useState(null)
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
@@ -59,19 +86,15 @@ export default function Slot() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setPagination(prev => ({ ...prev, page: 1 }))
-  }, [activeProvider, activeTab, debouncedSearch])
+  }, [activeTab, debouncedSearch])
 
   const fetchGames = useCallback(async () => {
     setLoading(true)
 
     const params = {
       page: pagination.page,
-      limit: 35,
-      gameType: 'slot',
-    }
-
-    if (activeProvider !== 'ALL') {
-      params.provider = activeProvider
+      limit: 10,
+      gameType: 'all',
     }
 
     if (activeTab === 'hot') {
@@ -104,7 +127,7 @@ export default function Slot() {
     }
 
     setLoading(false)
-  }, [pagination.page, activeProvider, activeTab, debouncedSearch])
+  }, [pagination.page, activeTab, debouncedSearch])
 
   useEffect(() => {
     fetchGames()
@@ -114,13 +137,37 @@ export default function Slot() {
     setSelectedGame(game)
   }
 
-  const handlePlayNow = (game, e) => {
-    e.stopPropagation()
+  const handlePlayNow = async (game, e) => {
+    if (e) e.stopPropagation()
+
     if (!isAuthenticated) {
       showToast('Please login to play', 'warning')
+      navigate('/login')
       return
     }
+
+    // Prevent double clicks
+    if (launchingGame === game.id) return
+
+    setLaunchingGame(game.id)
     showToast(`Launching ${game.name}...`, 'info')
+
+    try {
+      const result = await gameService.requestGameUrl(game.id, user?.id)
+
+      if (result.success && result.gameUrl) {
+        // Open game in new tab or redirect
+        window.open(result.gameUrl, '_blank')
+        showToast(`${game.name} launched!`, 'success')
+      } else {
+        showToast(result.error || 'Failed to launch game', 'error')
+      }
+    } catch (error) {
+      console.error('Game launch error:', error)
+      showToast('Failed to launch game. Please try again.', 'error')
+    } finally {
+      setLaunchingGame(null)
+    }
   }
 
   const handlePageChange = (newPage) => {
@@ -165,19 +212,6 @@ export default function Slot() {
           </div>
         </div>
 
-        {/* Provider Chips */}
-        <div className="slot-providers">
-          {providers.map((provider) => (
-            <button
-              key={provider.id}
-              className={`slot-provider-chip ${activeProvider === provider.id ? 'active' : ''}`}
-              onClick={() => setActiveProvider(provider.id)}
-            >
-              <span className="chip-label">{provider.name}</span>
-            </button>
-          ))}
-        </div>
-
         {/* Games Count */}
         <div className="games-count">
           {pagination.total} games found
@@ -200,11 +234,15 @@ export default function Slot() {
               {featuredGame && (
                 <div className="featured-game" onClick={() => handleGameClick(featuredGame)}>
                   <div className="featured-game-inner">
-                    <img src={featuredGame.image} alt={featuredGame.name} />
+                    <LazyImage src={featuredGame.image} alt={featuredGame.name} className="featured-img" />
                     <div className="featured-overlay">
                       <h3>{featuredGame.name}</h3>
-                      <button className="play-btn" onClick={(e) => handlePlayNow(featuredGame, e)}>
-                        Play Now
+                      <button
+                        className={`play-btn ${launchingGame === featuredGame.id ? 'loading' : ''}`}
+                        onClick={(e) => handlePlayNow(featuredGame, e)}
+                        disabled={launchingGame === featuredGame.id}
+                      >
+                        {launchingGame === featuredGame.id ? 'Launching...' : 'Play Now'}
                       </button>
                     </div>
                     <div className="game-badges">
@@ -224,10 +262,14 @@ export default function Slot() {
                     onClick={() => handleGameClick(game)}
                   >
                     <div className="game-image-wrapper">
-                      <img src={game.image} alt={game.name} className="game-image" />
+                      <LazyImage src={game.image} alt={game.name} className="game-image" />
                       <div className="game-overlay">
-                        <button className="play-btn" onClick={(e) => handlePlayNow(game, e)}>
-                          Play Now
+                        <button
+                          className={`play-btn ${launchingGame === game.id ? 'loading' : ''}`}
+                          onClick={(e) => handlePlayNow(game, e)}
+                          disabled={launchingGame === game.id}
+                        >
+                          {launchingGame === game.id ? 'Launching...' : 'Play Now'}
                         </button>
                       </div>
                       {(game.isHot || game.isNew) && (

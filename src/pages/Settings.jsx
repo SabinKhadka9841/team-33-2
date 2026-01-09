@@ -2,15 +2,19 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { useTranslation } from '../context/TranslationContext';
 import { authService } from '../services/authService';
 import { ButtonSpinner } from '../components/LoadingSpinner/LoadingSpinner';
+import AuthPrompt from '../components/AuthPrompt/AuthPrompt';
 import './Settings.css';
 
 export default function Settings() {
   const navigate = useNavigate();
-  const { user, updateProfile, logout } = useAuth();
+  const { user, isAuthenticated, updateProfile, logout } = useAuth();
   const { showToast } = useToast();
+  const { t, currentLanguage, changeLanguage, languages } = useTranslation();
 
+  // All hooks must be called before any conditional returns
   const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(false);
 
@@ -33,8 +37,18 @@ export default function Settings() {
     emailNotifications: true,
     smsNotifications: false,
     promotionalEmails: true,
-    language: 'en',
   });
+
+  // Show auth prompt if not logged in (after all hooks)
+  if (!isAuthenticated) {
+    return (
+      <AuthPrompt
+        title={t('accountSettings')}
+        message={t('pleaseLoginToContinue')}
+        icon="settings"
+      />
+    )
+  }
 
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
@@ -42,9 +56,9 @@ export default function Settings() {
 
     const result = await updateProfile(profileForm);
     if (result.success) {
-      showToast('Profile updated successfully', 'success');
+      showToast(t('profileUpdated'), 'success');
     } else {
-      showToast(result.message || 'Failed to update profile', 'error');
+      showToast(result.message || t('error'), 'error');
     }
 
     setLoading(false);
@@ -54,12 +68,12 @@ export default function Settings() {
     e.preventDefault();
 
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      showToast('Passwords do not match', 'error');
+      showToast(t('error'), 'error');
       return;
     }
 
     if (passwordForm.newPassword.length < 6) {
-      showToast('Password must be at least 6 characters', 'error');
+      showToast(t('error'), 'error');
       return;
     }
 
@@ -71,10 +85,10 @@ export default function Settings() {
     );
 
     if (result.success) {
-      showToast('Password changed successfully', 'success');
+      showToast(t('passwordChanged'), 'success');
       setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } else {
-      showToast(result.message || 'Failed to change password', 'error');
+      showToast(result.message || t('error'), 'error');
     }
 
     setLoading(false);
@@ -82,15 +96,15 @@ export default function Settings() {
 
   const handleLogout = async () => {
     await logout();
-    showToast('Logged out successfully', 'success');
+    showToast(t('logoutSuccess'), 'success');
     navigate('/');
   };
 
   return (
     <div className="settings-page">
       <div className="settings-hero">
-        <h1>Settings</h1>
-        <p>Manage your account preferences</p>
+        <h1>{t('settings')}</h1>
+        <p>{t('accountSettings')}</p>
       </div>
 
       <div className="settings-container">
@@ -100,19 +114,19 @@ export default function Settings() {
             className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
             onClick={() => setActiveTab('profile')}
           >
-            Profile
+            {t('profileInfo')}
           </button>
           <button
             className={`tab-btn ${activeTab === 'security' ? 'active' : ''}`}
             onClick={() => setActiveTab('security')}
           >
-            Security
+            {t('security')}
           </button>
           <button
             className={`tab-btn ${activeTab === 'preferences' ? 'active' : ''}`}
             onClick={() => setActiveTab('preferences')}
           >
-            Preferences
+            {t('notifications')}
           </button>
         </div>
 
@@ -121,17 +135,17 @@ export default function Settings() {
           {/* Profile Tab */}
           {activeTab === 'profile' && (
             <div className="settings-section">
-              <h2>Profile Information</h2>
-              <p className="section-desc">Update your personal information</p>
+              <h2>{t('profileInfo')}</h2>
+              <p className="section-desc">{t('accountSettings')}</p>
 
               <form onSubmit={handleProfileUpdate}>
                 <div className="form-group">
-                  <label>Username</label>
+                  <label>{t('username')}</label>
                   <input
                     type="text"
                     value={profileForm.username}
                     onChange={(e) => setProfileForm({ ...profileForm, username: e.target.value })}
-                    placeholder="Enter username"
+                    placeholder={t('enterUsername')}
                   />
                 </div>
 
@@ -146,17 +160,17 @@ export default function Settings() {
                 </div>
 
                 <div className="form-group">
-                  <label>Phone Number</label>
+                  <label>{t('mobileNo')}</label>
                   <input
                     type="tel"
                     value={profileForm.phone}
                     onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
-                    placeholder="Enter phone number"
+                    placeholder={t('enterPhone')}
                   />
                 </div>
 
                 <button type="submit" className="save-btn" disabled={loading}>
-                  {loading ? <ButtonSpinner /> : 'Save Changes'}
+                  {loading ? <ButtonSpinner /> : t('saveChanges')}
                 </button>
               </form>
             </div>
@@ -165,52 +179,52 @@ export default function Settings() {
           {/* Security Tab */}
           {activeTab === 'security' && (
             <div className="settings-section">
-              <h2>Change Password</h2>
-              <p className="section-desc">Update your password to keep your account secure</p>
+              <h2>{t('changePassword')}</h2>
+              <p className="section-desc">{t('security')}</p>
 
               <form onSubmit={handlePasswordChange}>
                 <div className="form-group">
-                  <label>Current Password</label>
+                  <label>{t('currentPassword')}</label>
                   <input
                     type="password"
                     value={passwordForm.currentPassword}
                     onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-                    placeholder="Enter current password"
+                    placeholder={t('currentPassword')}
                   />
                 </div>
 
                 <div className="form-group">
-                  <label>New Password</label>
+                  <label>{t('newPassword')}</label>
                   <input
                     type="password"
                     value={passwordForm.newPassword}
                     onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                    placeholder="Enter new password"
+                    placeholder={t('newPassword')}
                     minLength={6}
                   />
                 </div>
 
                 <div className="form-group">
-                  <label>Confirm New Password</label>
+                  <label>{t('confirmPassword')}</label>
                   <input
                     type="password"
                     value={passwordForm.confirmPassword}
                     onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                    placeholder="Confirm new password"
+                    placeholder={t('confirmPassword')}
                     minLength={6}
                   />
                 </div>
 
                 <button type="submit" className="save-btn" disabled={loading}>
-                  {loading ? <ButtonSpinner /> : 'Change Password'}
+                  {loading ? <ButtonSpinner /> : t('updatePassword')}
                 </button>
               </form>
 
               <div className="danger-zone">
-                <h3>Danger Zone</h3>
-                <p>Permanently log out from your account</p>
+                <h3>{t('logout')}</h3>
+                <p>{t('deleteAccountWarning')}</p>
                 <button className="logout-btn" onClick={handleLogout}>
-                  Logout
+                  {t('logout')}
                 </button>
               </div>
             </div>
@@ -219,14 +233,14 @@ export default function Settings() {
           {/* Preferences Tab */}
           {activeTab === 'preferences' && (
             <div className="settings-section">
-              <h2>Notifications</h2>
-              <p className="section-desc">Manage how we contact you</p>
+              <h2>{t('notifications')}</h2>
+              <p className="section-desc">{t('accountSettings')}</p>
 
               <div className="preference-group">
                 <div className="preference-item">
                   <div className="preference-info">
-                    <span className="preference-label">Email Notifications</span>
-                    <span className="preference-desc">Receive important updates via email</span>
+                    <span className="preference-label">{t('emailNotifications')}</span>
+                    <span className="preference-desc">{t('notifications')}</span>
                   </div>
                   <label className="toggle">
                     <input
@@ -240,8 +254,8 @@ export default function Settings() {
 
                 <div className="preference-item">
                   <div className="preference-info">
-                    <span className="preference-label">SMS Notifications</span>
-                    <span className="preference-desc">Receive alerts via SMS</span>
+                    <span className="preference-label">{t('smsNotifications')}</span>
+                    <span className="preference-desc">{t('notifications')}</span>
                   </div>
                   <label className="toggle">
                     <input
@@ -255,8 +269,8 @@ export default function Settings() {
 
                 <div className="preference-item">
                   <div className="preference-info">
-                    <span className="preference-label">Promotional Emails</span>
-                    <span className="preference-desc">Receive offers and promotions</span>
+                    <span className="preference-label">{t('pushNotifications')}</span>
+                    <span className="preference-desc">{t('promotions')}</span>
                   </div>
                   <label className="toggle">
                     <input
@@ -269,26 +283,27 @@ export default function Settings() {
                 </div>
               </div>
 
-              <h2 style={{ marginTop: '32px' }}>Language</h2>
-              <p className="section-desc">Choose your preferred language</p>
+              <h2 style={{ marginTop: '32px' }}>{t('language')}</h2>
+              <p className="section-desc">{t('translate')}</p>
 
               <div className="form-group">
                 <select
-                  value={preferences.language}
-                  onChange={(e) => setPreferences({ ...preferences, language: e.target.value })}
+                  value={currentLanguage}
+                  onChange={(e) => changeLanguage(e.target.value)}
                 >
-                  <option value="en">English</option>
-                  <option value="zh">Chinese (中文)</option>
-                  <option value="th">Thai (ไทย)</option>
-                  <option value="vi">Vietnamese (Tiếng Việt)</option>
+                  {languages.map(lang => (
+                    <option key={lang.code} value={lang.code}>
+                      {lang.flag} {lang.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               <button
                 className="save-btn"
-                onClick={() => showToast('Preferences saved', 'success')}
+                onClick={() => showToast(t('success'), 'success')}
               >
-                Save Preferences
+                {t('saveChanges')}
               </button>
             </div>
           )}

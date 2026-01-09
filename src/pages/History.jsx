@@ -1,28 +1,33 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from '../context/TranslationContext';
 import { walletService } from '../services/walletService';
 import LoadingSpinner from '../components/LoadingSpinner/LoadingSpinner';
 import Pagination from '../components/Pagination/Pagination';
+import AuthPrompt from '../components/AuthPrompt/AuthPrompt';
 import './History.css';
 
-const transactionTypes = [
-  { id: 'all', name: 'All' },
-  { id: 'deposit', name: 'Deposits' },
-  { id: 'withdraw', name: 'Withdrawals' },
-  { id: 'bonus', name: 'Bonuses' },
-  { id: 'bet', name: 'Bets' },
-  { id: 'win', name: 'Wins' },
-];
-
-const statusTypes = [
-  { id: 'all', name: 'All Status' },
-  { id: 'completed', name: 'Completed' },
-  { id: 'pending', name: 'Pending' },
-  { id: 'failed', name: 'Failed' },
-];
-
 export default function History() {
-  const { user } = useAuth();
+  const { isAuthenticated } = useAuth();
+  const { t } = useTranslation();
+
+  const transactionTypes = [
+    { id: 'all', name: t('all') },
+    { id: 'deposit', name: t('deposits') },
+    { id: 'withdraw', name: t('withdrawals') },
+    { id: 'bonus', name: t('bonuses') },
+    { id: 'bet', name: t('bets') },
+    { id: 'win', name: t('bonuses') },
+  ];
+
+  const statusTypes = [
+    { id: 'all', name: t('all') },
+    { id: 'completed', name: t('completed') },
+    { id: 'pending', name: t('pending') },
+    { id: 'failed', name: t('failed') },
+  ];
+
+  // All hooks must be called before any conditional returns
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
@@ -36,6 +41,7 @@ export default function History() {
   });
 
   const fetchTransactions = async () => {
+    if (!isAuthenticated) return;
     setLoading(true);
     const result = await walletService.getTransactions({
       page: pagination.page,
@@ -57,7 +63,18 @@ export default function History() {
 
   useEffect(() => {
     fetchTransactions();
-  }, [pagination.page, filters]);
+  }, [pagination.page, filters, isAuthenticated]);
+
+  // Show auth prompt if not logged in (after all hooks)
+  if (!isAuthenticated) {
+    return (
+      <AuthPrompt
+        title={t('transactionHistory')}
+        message={t('pleaseLoginToContinue')}
+        icon="history"
+      />
+    )
+  }
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -100,14 +117,14 @@ export default function History() {
     <div className="history-page">
       {/* Hero Section */}
       <div className="history-hero">
-        <h1>Transaction History</h1>
-        <p>View all your transactions and activity</p>
+        <h1>{t('transactionHistory')}</h1>
+        <p>{t('startPlaying')}</p>
       </div>
 
       {/* Filters */}
       <div className="history-filters">
         <div className="filter-group">
-          <label>Type</label>
+          <label>{t('transactionType')}</label>
           <select
             value={filters.type}
             onChange={(e) => handleFilterChange('type', e.target.value)}
@@ -119,7 +136,7 @@ export default function History() {
         </div>
 
         <div className="filter-group">
-          <label>Status</label>
+          <label>{t('status')}</label>
           <select
             value={filters.status}
             onChange={(e) => handleFilterChange('status', e.target.value)}
@@ -131,7 +148,7 @@ export default function History() {
         </div>
 
         <div className="filter-summary">
-          <span>{pagination.total} transactions found</span>
+          <span>{pagination.total} {t('noHistory')}</span>
         </div>
       </div>
 
@@ -139,13 +156,13 @@ export default function History() {
       <div className="transactions-container">
         {loading ? (
           <div className="loading-container">
-            <LoadingSpinner text="Loading transactions..." />
+            <LoadingSpinner text={t('loading')} />
           </div>
         ) : transactions.length === 0 ? (
           <div className="empty-state">
             <span className="empty-icon">📋</span>
-            <h3>No transactions found</h3>
-            <p>Your transaction history will appear here</p>
+            <h3>{t('noHistory')}</h3>
+            <p>{t('startPlaying')}</p>
           </div>
         ) : (
           <>
@@ -166,7 +183,7 @@ export default function History() {
                       {['deposit', 'bonus', 'win'].includes(tx.type) ? '+' : '-'}${tx.amount.toFixed(2)}
                     </span>
                     <span className={`transaction-status ${getStatusClass(tx.status)}`}>
-                      {tx.status}
+                      {tx.status === 'completed' ? t('completed') : tx.status === 'pending' ? t('pending') : t('failed')}
                     </span>
                   </div>
                 </div>

@@ -1,30 +1,47 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { gameService } from '../../services/gameService';
 import Modal from '../Modal/Modal';
 import './GameDetailModal.css';
 
 export default function GameDetailModal({ game, onClose }) {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { showToast } = useToast();
+  const [launching, setLaunching] = useState(false);
 
   if (!game) return null;
 
-  const handlePlayNow = () => {
+  const handlePlayNow = async () => {
     if (!isAuthenticated) {
       showToast('Please login to play', 'warning');
       navigate('/login');
       onClose();
       return;
     }
-    showToast(`Launching ${game.name}...`, 'info');
-    // In real app, this would open the game in iframe or redirect
-  };
 
-  const handleTryDemo = () => {
-    showToast(`Loading ${game.name} demo...`, 'info');
-    // In real app, this would open demo mode
+    if (launching) return;
+
+    setLaunching(true);
+    showToast(`Launching ${game.name}...`, 'info');
+
+    try {
+      const result = await gameService.requestGameUrl(game.id, user?.id);
+
+      if (result.success && result.gameUrl) {
+        window.open(result.gameUrl, '_blank');
+        showToast(`${game.name} launched!`, 'success');
+      } else {
+        showToast(result.error || 'Failed to launch game', 'error');
+      }
+    } catch (error) {
+      console.error('Game launch error:', error);
+      showToast('Failed to launch game. Please try again.', 'error');
+    } finally {
+      setLaunching(false);
+    }
   };
 
   return (
@@ -52,11 +69,12 @@ export default function GameDetailModal({ game, onClose }) {
             <p className="game-description">{game.description}</p>
 
             <div className="game-actions">
-              <button className="btn-play" onClick={handlePlayNow}>
-                Play Now
-              </button>
-              <button className="btn-demo" onClick={handleTryDemo}>
-                Try Demo
+              <button
+                className={`btn-play ${launching ? 'loading' : ''}`}
+                onClick={handlePlayNow}
+                disabled={launching}
+              >
+                {launching ? 'Launching...' : 'Play Now'}
               </button>
             </div>
           </div>

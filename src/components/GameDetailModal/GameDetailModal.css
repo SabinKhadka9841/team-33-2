@@ -108,20 +108,103 @@
 
 .btn-play {
   flex: 1;
-  padding: 14px 24px;
-  background: linear-gradient(135deg, var(--accent-gold), var(--accent-coral));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 28px;
+  background: linear-gradient(135deg,
+    rgba(16, 185, 129, 1) 0%,
+    rgba(5, 150, 105, 1) 50%,
+    rgba(4, 120, 87, 1) 100%);
   border: none;
-  border-radius: var(--radius-md);
-  color: #0a0d0a;
-  font-size: 15px;
+  border-radius: 50px;
+  color: #fff;
+  font-size: 16px;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 4px 20px rgba(16, 185, 129, 0.4),
+    0 0 40px rgba(16, 185, 129, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.btn-play::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.5s ease;
 }
 
 .btn-play:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+  background: linear-gradient(135deg,
+    rgba(52, 211, 153, 1) 0%,
+    rgba(16, 185, 129, 1) 50%,
+    rgba(5, 150, 105, 1) 100%);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow:
+    0 8px 30px rgba(16, 185, 129, 0.5),
+    0 0 60px rgba(16, 185, 129, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.btn-play:hover::before {
+  left: 100%;
+}
+
+.btn-play:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow:
+    0 2px 15px rgba(16, 185, 129, 0.4),
+    inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-play.loading {
+  background: linear-gradient(135deg,
+    rgba(5, 150, 105, 0.8) 0%,
+    rgba(4, 120, 87, 0.8) 100%);
+  cursor: wait;
+  pointer-events: none;
+}
+
+.btn-play.loading::before {
+  display: none;
+}
+
+.btn-play.loading::after {
+  content: '';
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: modalBtnSpin 0.7s linear infinite;
+}
+
+.btn-play:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  pointer-events: none;
+}
+
+@keyframes modalBtnSpin {
+  to { transform: rotate(360deg); }
 }
 
 .btn-demo {

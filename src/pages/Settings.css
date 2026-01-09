@@ -13,7 +13,10 @@
 .settings-hero h1 {
   font-size: 32px;
   font-weight: 700;
-  color: var(--text-primary);
+  background: linear-gradient(135deg, #fff 0%, var(--accent) 50%, var(--primary-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin-bottom: 8px;
 }
 
@@ -127,25 +130,32 @@
 
 .save-btn {
   padding: 14px 32px;
-  background: linear-gradient(135deg, var(--accent-gold), var(--accent-coral));
+  background: linear-gradient(135deg, var(--emerald-500, #10b981), var(--emerald-600, #059669));
   border: none;
-  border-radius: var(--radius-md);
-  color: #0a0d0a;
+  border-radius: var(--radius-md, 8px);
+  color: #fff;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
   min-width: 160px;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
 }
 
 .save-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+  background: linear-gradient(135deg, #14d390, #10b981);
+}
+
+.save-btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .save-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 /* Preferences */
@@ -270,7 +280,8 @@
   }
 
   .settings-hero {
-    padding: 24px 0 16px;
+    padding: 16px 0 16px;
+    margin-top: 4px;
   }
 
   .settings-hero h1 {
