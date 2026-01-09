@@ -93,7 +93,7 @@ export default function Layout({ children }) {
           </button>
 
           {/* Center - Brand Text */}
-          <span className="header-brand-text">Team 3<span className="crowned-three">3</span></span>
+          <span className="header-brand-text">Team 33</span>
 
           {/* Logo - Right Side */}
           <Link to="/" className="logo">

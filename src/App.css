@@ -1376,9 +1376,10 @@ body::before {
   min-width: 100%;
   height: auto;
   display: block;
-  aspect-ratio: 16/5;
+  aspect-ratio: 16/6;
   object-fit: cover;
   flex-shrink: 0;
+  max-height: 320px;
 }
 
 .banner-wrapper:hover .banner-slider .banner-image {
@@ -1585,7 +1586,7 @@ body::before {
 
 /* ========== BELOW BANNER ========== */
 .below-banner {
-  max-width: var(--container-max);
+  max-width: 900px;
   margin: 0 auto 20px;
   padding: 0 var(--section-padding);
 }
@@ -1593,11 +1594,13 @@ body::before {
 .below-banner-image {
   width: 100%;
   height: auto;
+  max-height: 180px;
   border-radius: 12px;
   display: block;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   transition: all 0.4s var(--ease-out);
   cursor: pointer;
+  object-fit: cover;
 }
 
 .below-banner-image:hover {
