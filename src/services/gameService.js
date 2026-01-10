@@ -265,7 +265,7 @@ export const gameService = {
 
   /**
    * Request game launch URL from backend
-   * Uses Vercel API proxy to bypass CORS
+   * Uses Team33 Game Launch API
    */
   async requestGameUrl(gameId, userId) {
     const game = getLocalGameById(gameId);
@@ -273,14 +273,18 @@ export const gameService = {
       return { success: false, error: 'Game not found' };
     }
 
+    const GAME_LAUNCH_API = 'http://k8s-team33-accounts-9a3cb34ef2-792ca1b1aa42bb5e.elb.ap-southeast-2.amazonaws.com/api/games/launch';
+    const ACCOUNT_ID = 'ACC284290827402874880';
+
     try {
-      // Call our Vercel API proxy (bypasses CORS)
-      const response = await fetch('/api/launch-game', {
+      // Call Team33 Game Launch API directly
+      const response = await fetch(GAME_LAUNCH_API, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          accountId: ACCOUNT_ID,
           gameId: game.gameId || game.slug  // Use gameId (slug) from game data
         })
       });
