@@ -265,7 +265,7 @@ export const gameService = {
 
   /**
    * Request game launch URL from backend
-   * Uses Vercel API proxy to avoid mixed content (HTTPS -> HTTP)
+   * Uses direct API on localhost, proxy on production (to avoid mixed content)
    */
   async requestGameUrl(gameId, userId) {
     const game = getLocalGameById(gameId);
@@ -273,16 +273,24 @@ export const gameService = {
       return { success: false, error: 'Game not found' };
     }
 
+    const GAME_LAUNCH_API = 'http://k8s-team33-accounts-9a3cb34ef2-792ca1b1aa42bb5e.elb.ap-southeast-2.amazonaws.com/api/games/launch';
+    const ACCOUNT_ID = 'ACC284290827402874880';
+
+    // Use direct API on localhost, proxy on production (HTTPS)
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const apiUrl = isLocalhost ? GAME_LAUNCH_API : '/api/launch-game';
+
     try {
-      // Use Vercel API proxy to avoid mixed content issues
-      const response = await fetch('/api/launch-game', {
+      const requestBody = isLocalhost
+        ? { accountId: ACCOUNT_ID, gameId: game.gameId || game.slug }
+        : { gameId: game.gameId || game.slug };
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          gameId: game.gameId || game.slug
-        })
+        body: JSON.stringify(requestBody)
       });
 
       const data = await response.json();
