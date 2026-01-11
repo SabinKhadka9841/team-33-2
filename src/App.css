@@ -8063,3 +8063,165 @@ button, a, .game-card, .provider-btn, .page-btn, .dot, .carousel-btn, .badge {
     font-size: 12px;
   }
 }
+
+/* Mobile Optimized Game Player Header */
+@media (max-width: 768px) {
+  .game-player-header {
+    padding: 8px 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .game-player-left {
+    gap: 8px;
+    flex: 0 0 auto;
+  }
+
+  .game-player-back {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+  }
+
+  .game-player-back svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .game-player-title {
+    font-size: 12px;
+    max-width: 80px;
+  }
+
+  .game-player-center {
+    flex: 1;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .game-player-balance {
+    padding: 4px 10px;
+    border-radius: 8px;
+    flex-direction: row;
+    gap: 6px;
+  }
+
+  .balance-label {
+    font-size: 9px;
+    display: none;
+  }
+
+  .balance-amount {
+    font-size: 14px;
+  }
+
+  .game-player-deposit {
+    padding: 6px 10px;
+    font-size: 11px;
+    border-radius: 8px;
+    gap: 4px;
+  }
+
+  .game-player-deposit svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .game-player-actions {
+    flex: 0 0 auto;
+    gap: 6px;
+  }
+
+  .game-player-exit {
+    padding: 6px 10px;
+    font-size: 11px;
+    border-radius: 6px;
+  }
+
+  .game-player-fullscreen {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+  }
+
+  .game-player-fullscreen svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-player-header {
+    padding: 6px 8px;
+  }
+
+  .game-player-left {
+    gap: 6px;
+  }
+
+  .game-player-back {
+    width: 32px;
+    height: 32px;
+  }
+
+  .game-player-title {
+    display: none;
+  }
+
+  .game-player-center {
+    gap: 6px;
+  }
+
+  .game-player-balance {
+    padding: 6px 12px;
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.15) 0%, rgba(0, 200, 100, 0.1) 100%);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 20px;
+  }
+
+  .balance-amount {
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .game-player-deposit {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 20px;
+  }
+
+  .game-player-exit {
+    display: none;
+  }
+
+  .game-player-fullscreen {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (max-width: 360px) {
+  .game-player-balance {
+    padding: 5px 10px;
+  }
+
+  .balance-amount {
+    font-size: 14px;
+  }
+
+  .game-player-deposit {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
+  .game-player-deposit svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .game-player-back,
+  .game-player-fullscreen {
+    width: 30px;
+    height: 30px;
+  }
+}
