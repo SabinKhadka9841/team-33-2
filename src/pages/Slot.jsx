@@ -340,6 +340,7 @@ export default function Slot() {
         <GameDetailModal
           game={selectedGame}
           onClose={() => setSelectedGame(null)}
+          onPlayGame={(gameData) => setEmbeddedGame(gameData)}
         />
       )}
 

@@ -6,7 +6,7 @@ import { gameService } from '../../services/gameService';
 import Modal from '../Modal/Modal';
 import './GameDetailModal.css';
 
-export default function GameDetailModal({ game, onClose }) {
+export default function GameDetailModal({ game, onClose, onPlayGame }) {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const { showToast } = useToast();
@@ -31,7 +31,13 @@ export default function GameDetailModal({ game, onClose }) {
       const result = await gameService.requestGameUrl(game.id, user?.id);
 
       if (result.success && result.gameUrl) {
-        window.open(result.gameUrl, '_blank');
+        // Use embedded player if callback provided, otherwise open new tab
+        if (onPlayGame) {
+          onPlayGame({ url: result.gameUrl, name: game.name });
+          onClose();
+        } else {
+          window.open(result.gameUrl, '_blank');
+        }
         showToast(`${game.name} launched!`, 'success');
       } else {
         showToast(result.error || 'Failed to launch game', 'error');

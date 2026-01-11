@@ -73,6 +73,7 @@ export default function Home() {
   const [launchingGame, setLaunchingGame] = useState(null)
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 })
   const [selectedGame, setSelectedGame] = useState(null)
+  const [embeddedGame, setEmbeddedGame] = useState(null) // { url, name }
 
   // Banner state
   const [banners, setBanners] = useState(defaultBanners)
@@ -155,8 +156,8 @@ export default function Home() {
       const result = await gameService.requestGameUrl(game.id, user?.id)
 
       if (result.success && result.gameUrl) {
-        // Open game in new tab or redirect
-        window.open(result.gameUrl, '_blank')
+        // Show game in embedded iframe
+        setEmbeddedGame({ url: result.gameUrl, name: game.name })
         showToast(`${game.name} launched!`, 'success')
       } else {
         showToast(result.error || 'Failed to launch game', 'error')
@@ -282,7 +283,43 @@ export default function Home() {
         <GameDetailModal
           game={selectedGame}
           onClose={() => setSelectedGame(null)}
+          onPlayGame={(gameData) => setEmbeddedGame(gameData)}
         />
+      )}
+
+      {/* Embedded Game Player */}
+      {embeddedGame && (
+        <div className="game-player-overlay">
+          <div className="game-player-container">
+            <div className="game-player-header">
+              <h3 className="game-player-title">{embeddedGame.name}</h3>
+              <div className="game-player-actions">
+                <button
+                  className="game-player-fullscreen"
+                  onClick={() => window.open(embeddedGame.url, '_blank')}
+                  title="Open in new tab"
+                >
+                  Open Full Screen
+                </button>
+                <button
+                  className="game-player-close"
+                  onClick={() => setEmbeddedGame(null)}
+                  title="Close game"
+                >
+                  X
+                </button>
+              </div>
+            </div>
+            <div className="game-player-frame">
+              <iframe
+                src={embeddedGame.url}
+                title={embeddedGame.name}
+                allowFullScreen
+                allow="autoplay; fullscreen; clipboard-write"
+              />
+            </div>
+          </div>
+        </div>
       )}
     </>
   )
