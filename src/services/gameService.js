@@ -310,9 +310,14 @@ export const gameService = {
 
       // If API returns error
       if (data.error || data.message) {
+        let errorMsg = data.error || data.message || 'Failed to launch game';
+        // Check if error is HTML (Cloudflare block page) - show clean message
+        if (typeof errorMsg === 'string' && (errorMsg.includes('<!DOCTYPE') || errorMsg.includes('<html'))) {
+          errorMsg = 'Game server temporarily unavailable. Please try again.';
+        }
         return {
           success: false,
-          error: data.error || data.message || 'Failed to launch game'
+          error: errorMsg
         };
       }
 
