@@ -94,7 +94,7 @@ export default function Home() {
     setLoading(true)
     const result = await gameService.getGames({
       page: pagination.page,
-      limit: 10,
+      limit: 20,
       gameType: 'all'
     })
 

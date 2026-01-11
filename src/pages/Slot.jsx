@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { gameService } from '../services/gameService'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
+import { CATEGORIES } from '../data/gameData'
 import GameDetailModal from '../components/GameDetailModal/GameDetailModal'
 import Pagination from '../components/Pagination/Pagination'
 import LoadingSpinner from '../components/LoadingSpinner/LoadingSpinner'
@@ -93,7 +94,7 @@ export default function Slot() {
 
     const params = {
       page: pagination.page,
-      limit: 10,
+      limit: 20,
       gameType: 'all',
     }
 
@@ -228,61 +229,97 @@ export default function Slot() {
           </div>
         ) : (
           <>
-            {/* Games Grid */}
+            {/* Games by Category */}
             <div className="slot-games-layout">
-              {/* Featured Game */}
-              {featuredGame && (
-                <div className="featured-game" onClick={() => handleGameClick(featuredGame)}>
-                  <div className="featured-game-inner">
-                    <LazyImage src={featuredGame.image} alt={featuredGame.name} className="featured-img" />
-                    <div className="featured-overlay">
-                      <h3>{featuredGame.name}</h3>
-                      <button
-                        className={`play-btn ${launchingGame === featuredGame.id ? 'loading' : ''}`}
-                        onClick={(e) => handlePlayNow(featuredGame, e)}
-                        disabled={launchingGame === featuredGame.id}
-                      >
-                        {launchingGame === featuredGame.id ? 'Launching...' : 'Play Now'}
-                      </button>
-                    </div>
-                    <div className="game-badges">
-                      {featuredGame.isHot && <span className="game-badge hot">HOT</span>}
-                      {featuredGame.isNew && <span className="game-badge new">NEW</span>}
-                    </div>
-                  </div>
-                </div>
-              )}
+              {/* Crash Games Section */}
+              {(() => {
+                const allGames = featuredGame ? [featuredGame, ...games] : games;
+                const crashGames = allGames.filter(g => g.category === CATEGORIES.CRASH);
+                const slotGames = allGames.filter(g => g.category === CATEGORIES.SLOTS || g.category !== CATEGORIES.CRASH);
 
-              {/* Regular Games Grid */}
-              <div className="slot-games-grid">
-                {games.map((game) => (
-                  <div
-                    key={game.id}
-                    className="slot-game-card"
-                    onClick={() => handleGameClick(game)}
-                  >
-                    <div className="game-image-wrapper">
-                      <LazyImage src={game.image} alt={game.name} className="game-image" />
-                      <div className="game-overlay">
-                        <button
-                          className={`play-btn ${launchingGame === game.id ? 'loading' : ''}`}
-                          onClick={(e) => handlePlayNow(game, e)}
-                          disabled={launchingGame === game.id}
-                        >
-                          {launchingGame === game.id ? 'Launching...' : 'Play Now'}
-                        </button>
-                      </div>
-                      {(game.isHot || game.isNew) && (
-                        <div className="game-badges">
-                          {game.isHot && <span className="game-badge hot">HOT</span>}
-                          {game.isNew && <span className="game-badge new">NEW</span>}
+                return (
+                  <>
+                    {crashGames.length > 0 && (
+                      <div className="game-category-section">
+                        <h2 className="category-title">
+                          <span className="category-icon">🚀</span>
+                          Crash Games
+                          <span className="category-count">({crashGames.length})</span>
+                        </h2>
+                        <div className="slot-games-grid">
+                          {crashGames.map((game) => (
+                            <div
+                              key={game.id}
+                              className="slot-game-card"
+                              onClick={() => handleGameClick(game)}
+                            >
+                              <div className="game-image-wrapper">
+                                <LazyImage src={game.image} alt={game.name} className="game-image" />
+                                <div className="game-overlay">
+                                  <button
+                                    className={`play-btn ${launchingGame === game.id ? 'loading' : ''}`}
+                                    onClick={(e) => handlePlayNow(game, e)}
+                                    disabled={launchingGame === game.id}
+                                  >
+                                    {launchingGame === game.id ? 'Launching...' : 'Play Now'}
+                                  </button>
+                                </div>
+                                {(game.isHot || game.isNew) && (
+                                  <div className="game-badges">
+                                    {game.isHot && <span className="game-badge hot">HOT</span>}
+                                    {game.isNew && <span className="game-badge new">NEW</span>}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="game-name">{game.name}</div>
+                            </div>
+                          ))}
                         </div>
-                      )}
-                    </div>
-                    <div className="game-name">{game.name}</div>
-                  </div>
-                ))}
-              </div>
+                      </div>
+                    )}
+
+                    {/* Slot Games Section */}
+                    {slotGames.length > 0 && (
+                      <div className="game-category-section">
+                        <h2 className="category-title">
+                          <span className="category-icon">🎰</span>
+                          Slot Games
+                          <span className="category-count">({slotGames.length})</span>
+                        </h2>
+                        <div className="slot-games-grid">
+                          {slotGames.map((game) => (
+                            <div
+                              key={game.id}
+                              className="slot-game-card"
+                              onClick={() => handleGameClick(game)}
+                            >
+                              <div className="game-image-wrapper">
+                                <LazyImage src={game.image} alt={game.name} className="game-image" />
+                                <div className="game-overlay">
+                                  <button
+                                    className={`play-btn ${launchingGame === game.id ? 'loading' : ''}`}
+                                    onClick={(e) => handlePlayNow(game, e)}
+                                    disabled={launchingGame === game.id}
+                                  >
+                                    {launchingGame === game.id ? 'Launching...' : 'Play Now'}
+                                  </button>
+                                </div>
+                                {(game.isHot || game.isNew) && (
+                                  <div className="game-badges">
+                                    {game.isHot && <span className="game-badge hot">HOT</span>}
+                                    {game.isNew && <span className="game-badge new">NEW</span>}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="game-name">{game.name}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
 
             {/* Pagination */}

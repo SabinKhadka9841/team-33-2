@@ -41,8 +41,8 @@ export const games = [
   { id: 12, gameId: 'cpc-crash-jetpack', slug: 'cpc-crash-jetpack', name: 'Crash Jetpack', category: CATEGORIES.CRASH, provider: 'CPC', isHot: true, isNew: false },
   { id: 13, gameId: 'cpc-cross-astronaut', slug: 'cpc-cross-astronaut', name: 'Cross Astronaut', category: CATEGORIES.CRASH, provider: 'CPC', isHot: false, isNew: true },
 
-  // Instant Win / Mines
-  { id: 14, gameId: 'cpc-mines-pirate', slug: 'cpc-mines-pirate', name: 'Mines Pirate', category: CATEGORIES.INSTANT_WIN, provider: 'CPC', isHot: true, isNew: false },
+  // Crash Games (continued)
+  { id: 14, gameId: 'cpc-mines-pirate', slug: 'cpc-mines-pirate', name: 'Mines Pirate', category: CATEGORIES.CRASH, provider: 'CPC', isHot: true, isNew: false },
 
   // More Slots
   { id: 15, gameId: 'dragon-jewels', slug: 'dragon-jewels', name: 'Dragon Jewels', category: CATEGORIES.SLOTS, provider: 'Team33', isHot: true, isNew: false },
