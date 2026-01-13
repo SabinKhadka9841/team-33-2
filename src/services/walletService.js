@@ -154,105 +154,76 @@ export const walletService = {
       return { success: false, error: 'No account ID' };
     }
 
-    // Check for local wallet first (might have been updated by admin)
+    // Check for local wallet (for fallback)
     const localWallet = getLocalWallet(accountId);
 
-    // For local accounts OR if local wallet was recently updated, use localStorage
-    const recentlyUpdated = localWallet?.updatedAt &&
-      (Date.now() - new Date(localWallet.updatedAt).getTime()) < 60000; // Within last minute
-
-    if (isLocalAccount(accountId) || recentlyUpdated) {
-      let wallet = localWallet;
-      if (!wallet) {
-        // Create wallet if doesn't exist
-        const walletId = generateWalletId();
-        wallet = {
-          walletId,
-          accountId,
-          balance: DEFAULT_BALANCE,
-          currency: 'AUD',
-          transactions: [],
-          createdAt: new Date().toISOString(),
-        };
-        saveLocalWallet(accountId, wallet);
-      }
-      return {
-        success: true,
-        data: {
-          walletId: wallet.walletId,
-          balance: wallet.balance,
-          currency: wallet.currency || 'AUD',
-          total: wallet.balance,
-          available: wallet.balance,
-        },
-        walletId: wallet.walletId,
-        balance: wallet.balance,
-        currency: wallet.currency || 'AUD',
-      };
-    }
-
+    // ALWAYS try API first for cross-browser/device balance sync
     try {
       const response = await fetch(`/api/wallets/${accountId}/balance`, {
         method: 'GET',
         headers,
       });
 
-      if (!response.ok) {
-        // If API fails, fall back to local wallet if exists
-        if (localWallet) {
-          return {
-            success: true,
-            data: {
-              walletId: localWallet.walletId,
-              balance: localWallet.balance,
-              currency: localWallet.currency || 'AUD',
-              total: localWallet.balance,
-              available: localWallet.balance,
-            },
-            walletId: localWallet.walletId,
-            balance: localWallet.balance,
-            currency: localWallet.currency || 'AUD',
-          };
-        }
-        const error = await response.json();
-        return { success: false, error: error.error || 'Failed to get balance' };
-      }
+      if (response.ok) {
+        const data = await response.json();
 
-      const data = await response.json();
-      return {
-        success: true,
-        data: {
-          balance: data.balance,
-          currency: data.currency,
-          total: data.balance,
-          available: data.balance,
-        },
-        balance: data.balance,
-        currency: data.currency,
-      };
-    } catch (error) {
-      console.error('Get balance error:', error);
-      // Fall back to local wallet on network error
-      if (localWallet) {
+        // Update local wallet with API balance for consistency
+        if (localWallet) {
+          localWallet.balance = data.balance;
+          localWallet.updatedAt = new Date().toISOString();
+          saveLocalWallet(accountId, localWallet);
+        }
+
         return {
           success: true,
           data: {
-            walletId: localWallet.walletId,
-            balance: localWallet.balance,
-            currency: localWallet.currency || 'AUD',
-            total: localWallet.balance,
-            available: localWallet.balance,
+            balance: data.balance,
+            currency: data.currency || 'AUD',
+            total: data.balance,
+            available: data.balance,
           },
-          walletId: localWallet.walletId,
-          balance: localWallet.balance,
-          currency: localWallet.currency || 'AUD',
+          balance: data.balance,
+          currency: data.currency || 'AUD',
+          source: 'api',
         };
       }
-      return {
-        success: false,
-        error: 'Failed to fetch balance',
-      };
+
+      // API returned error - fall through to localStorage fallback
+      console.log('Wallet API error, falling back to localStorage');
+    } catch (error) {
+      console.log('Wallet API unavailable, using localStorage:', error.message);
     }
+
+    // Fallback to localStorage (for offline mode or API errors)
+    let wallet = localWallet;
+    if (!wallet) {
+      // Create wallet if doesn't exist
+      const walletId = generateWalletId();
+      wallet = {
+        walletId,
+        accountId,
+        balance: DEFAULT_BALANCE,
+        currency: 'AUD',
+        transactions: [],
+        createdAt: new Date().toISOString(),
+      };
+      saveLocalWallet(accountId, wallet);
+    }
+
+    return {
+      success: true,
+      data: {
+        walletId: wallet.walletId,
+        balance: wallet.balance,
+        currency: wallet.currency || 'AUD',
+        total: wallet.balance,
+        available: wallet.balance,
+      },
+      walletId: wallet.walletId,
+      balance: wallet.balance,
+      currency: wallet.currency || 'AUD',
+      source: 'localStorage',
+    };
   },
 
   // Deposit to wallet
