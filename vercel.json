@@ -1,6 +1,4 @@
 {
-  "buildCommand": "npm run build:admin",
-  "outputDirectory": "dist-admin",
   "rewrites": [
     {
       "source": "/api/otp/:path*",
@@ -27,8 +25,12 @@
       "destination": "http://k8s-team33-walletse-2b6bcd93c2-52fa21111cb7a7e7.elb.ap-southeast-2.amazonaws.com/api/wallets/:path*"
     },
     {
-      "source": "/(.*)",
+      "source": "/admin.html",
       "destination": "/admin.html"
+    },
+    {
+      "source": "/((?!api/|admin\\.html).*)",
+      "destination": "/index.html"
     }
   ],
   "headers": [
