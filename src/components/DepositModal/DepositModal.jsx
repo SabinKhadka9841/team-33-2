@@ -6,10 +6,8 @@ import { ButtonSpinner } from '../LoadingSpinner/LoadingSpinner'
 import './DepositModal.css'
 
 const paymentMethods = [
-  { id: 'credit_card', name: 'Credit/Debit Card', icon: '💳', fee: '0%' },
   { id: 'bank_transfer', name: 'Bank Transfer', icon: '🏦', fee: '0%' },
   { id: 'payid', name: 'PayID', icon: '⚡', fee: '0%' },
-  { id: 'crypto', name: 'Cryptocurrency', icon: '₿', fee: '0%' },
 ]
 
 const quickAmounts = [50, 100, 200, 500, 1000]
@@ -19,7 +17,7 @@ export default function DepositModal({ isOpen, onClose }) {
   const { showToast } = useToast()
 
   const [amount, setAmount] = useState('')
-  const [paymentMethod, setPaymentMethod] = useState('credit_card')
+  const [paymentMethod, setPaymentMethod] = useState('bank_transfer')
   const [loading, setLoading] = useState(false)
   const [step, setStep] = useState('amount') // 'amount', 'processing', 'success'
 
