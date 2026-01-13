@@ -64,8 +64,8 @@
 
 .filter-group select {
   padding: 10px 36px 10px 14px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-subtle);
+  background: #0f1410;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   font-size: 14px;
@@ -145,7 +145,7 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.05);
+  background: #121916;
   display: flex;
   align-items: center;
   justify-content: center;

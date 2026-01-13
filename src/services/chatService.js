@@ -15,6 +15,8 @@
  * - WebSocket: ws://BASE_URL/ws/chat/{sessionId}
  */
 
+import { chatStorageService } from './chatStorageService';
+
 // Use relative URLs for proxy support (Vite dev server or Vercel production)
 const CHAT_API_BASE = '';  // Empty = relative URL, proxied through Vite/Vercel
 const CHAT_WS_BASE = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`;
@@ -73,6 +75,17 @@ class ChatService {
 
       if (response.ok && data.sessionId) {
         this.sessionId = data.sessionId;
+
+        // Save session to local storage for admin panel visibility
+        chatStorageService.saveSession({
+          sessionId: data.sessionId,
+          accountId: data.accountId || accountId,
+          agentId: data.agentId,
+          status: data.status || 'WAITING',
+          subject: data.subject || subject,
+          createdAt: data.createdAt,
+        });
+
         return {
           success: true,
           sessionId: data.sessionId,
@@ -286,6 +299,14 @@ class ChatService {
       content: content,
     };
 
+    // Save message to local storage for admin panel
+    chatStorageService.saveMessage(sessionId, {
+      senderId: this.accountId,
+      senderType: 'USER',
+      content: content,
+      createdAt: new Date().toISOString(),
+    });
+
     // Try WebSocket first if connected
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       try {
@@ -330,6 +351,9 @@ class ChatService {
     if (!sessionId) {
       return { success: false, error: 'No session ID' };
     }
+
+    // Update session status in local storage
+    chatStorageService.updateSessionStatus(sessionId, 'CLOSED');
 
     try {
       const response = await fetch(`${CHAT_API_BASE}/api/chat/sessions/${sessionId}/close`, {

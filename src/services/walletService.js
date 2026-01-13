@@ -1,11 +1,40 @@
 // Wallet Service - Wallet management via external API with localStorage fallback
-const API_KEY = 'team33-admin-secret-key-change-in-prod';
+// API calls use relative URLs which are proxied by Vite (dev) or Vercel serverless functions (prod)
+const API_KEY = 'team33-admin-secret-key-2024';
 const LOCAL_WALLETS_KEY = 'team33_local_wallets';
+const PENDING_TRANSACTIONS_KEY = 'team33_pending_transactions';
 const DEFAULT_BALANCE = 0; // Users must deposit via agent/admin
 
 const headers = {
   'Content-Type': 'application/json',
   'X-API-Key': API_KEY,
+};
+
+// Generate unique Transaction ID
+const generateTransactionId = () => {
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+  return `TXN-${timestamp}-${random}`;
+};
+
+// Pending transactions helpers
+const getPendingTransactions = () => {
+  try {
+    return JSON.parse(localStorage.getItem(PENDING_TRANSACTIONS_KEY) || '[]');
+  } catch {
+    return [];
+  }
+};
+
+const savePendingTransactions = (transactions) => {
+  localStorage.setItem(PENDING_TRANSACTIONS_KEY, JSON.stringify(transactions));
+};
+
+// Generate unique Wallet ID (WAL-XXXXXX format)
+const generateWalletId = () => {
+  const timestamp = Date.now().toString(36).toUpperCase();
+  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `WAL-${timestamp}${random}`;
 };
 
 // Local wallet helpers
@@ -28,8 +57,9 @@ const getLocalWallet = (accountId) => {
   return wallets[accountId];
 };
 
+// Check if account is local (ACC- format or old local_ format)
 const isLocalAccount = (accountId) => {
-  return accountId && accountId.startsWith('local_');
+  return accountId && (accountId.startsWith('ACC-') || accountId.startsWith('local_'));
 };
 
 export const walletService = {
@@ -39,10 +69,12 @@ export const walletService = {
     if (isLocalAccount(accountId)) {
       const existingWallet = getLocalWallet(accountId);
       if (existingWallet) {
-        return { success: true, wallet: existingWallet, data: existingWallet };
+        return { success: true, wallet: existingWallet, data: existingWallet, walletId: existingWallet.walletId };
       }
 
+      const walletId = generateWalletId();
       const wallet = {
+        walletId,
         accountId,
         balance: DEFAULT_BALANCE,
         currency: 'AUD',
@@ -50,7 +82,7 @@ export const walletService = {
         createdAt: new Date().toISOString(),
       };
       saveLocalWallet(accountId, wallet);
-      return { success: true, wallet, data: wallet };
+      return { success: true, wallet, data: wallet, walletId };
     }
 
     try {
@@ -122,12 +154,20 @@ export const walletService = {
       return { success: false, error: 'No account ID' };
     }
 
-    // For local accounts, get balance from localStorage
-    if (isLocalAccount(accountId)) {
-      let wallet = getLocalWallet(accountId);
+    // Check for local wallet first (might have been updated by admin)
+    const localWallet = getLocalWallet(accountId);
+
+    // For local accounts OR if local wallet was recently updated, use localStorage
+    const recentlyUpdated = localWallet?.updatedAt &&
+      (Date.now() - new Date(localWallet.updatedAt).getTime()) < 60000; // Within last minute
+
+    if (isLocalAccount(accountId) || recentlyUpdated) {
+      let wallet = localWallet;
       if (!wallet) {
         // Create wallet if doesn't exist
+        const walletId = generateWalletId();
         wallet = {
+          walletId,
           accountId,
           balance: DEFAULT_BALANCE,
           currency: 'AUD',
@@ -139,11 +179,13 @@ export const walletService = {
       return {
         success: true,
         data: {
+          walletId: wallet.walletId,
           balance: wallet.balance,
           currency: wallet.currency || 'AUD',
           total: wallet.balance,
           available: wallet.balance,
         },
+        walletId: wallet.walletId,
         balance: wallet.balance,
         currency: wallet.currency || 'AUD',
       };
@@ -156,6 +198,22 @@ export const walletService = {
       });
 
       if (!response.ok) {
+        // If API fails, fall back to local wallet if exists
+        if (localWallet) {
+          return {
+            success: true,
+            data: {
+              walletId: localWallet.walletId,
+              balance: localWallet.balance,
+              currency: localWallet.currency || 'AUD',
+              total: localWallet.balance,
+              available: localWallet.balance,
+            },
+            walletId: localWallet.walletId,
+            balance: localWallet.balance,
+            currency: localWallet.currency || 'AUD',
+          };
+        }
         const error = await response.json();
         return { success: false, error: error.error || 'Failed to get balance' };
       }
@@ -174,6 +232,22 @@ export const walletService = {
       };
     } catch (error) {
       console.error('Get balance error:', error);
+      // Fall back to local wallet on network error
+      if (localWallet) {
+        return {
+          success: true,
+          data: {
+            walletId: localWallet.walletId,
+            balance: localWallet.balance,
+            currency: localWallet.currency || 'AUD',
+            total: localWallet.balance,
+            available: localWallet.balance,
+          },
+          walletId: localWallet.walletId,
+          balance: localWallet.balance,
+          currency: localWallet.currency || 'AUD',
+        };
+      }
       return {
         success: false,
         error: 'Failed to fetch balance',
@@ -592,6 +666,210 @@ export const walletService = {
     }
     return user.balance;
   },
+
+  // Request a deposit (creates pending transaction for admin approval)
+  async requestDeposit(amount, paymentMethod = 'Bank Transfer', bankDetails = {}) {
+    const user = JSON.parse(localStorage.getItem('team33_user') || localStorage.getItem('user') || '{}');
+    const accountId = user.accountId || user.id;
+
+    if (!accountId) {
+      return { success: false, error: 'Not logged in' };
+    }
+
+    const depositAmount = Number(amount);
+    if (depositAmount < 10) {
+      return { success: false, error: 'Minimum deposit is $10' };
+    }
+    if (depositAmount > 10000) {
+      return { success: false, error: 'Maximum deposit is $10,000' };
+    }
+
+    try {
+      // Step 1: Initiate deposit via API (use relative URL for Vercel proxy)
+      const initiateResponse = await fetch(`/api/deposits/initiate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          accountId: accountId,
+          amount: depositAmount
+        })
+      });
+
+      if (!initiateResponse.ok) {
+        const error = await initiateResponse.json().catch(() => ({}));
+        throw new Error(error.message || 'Failed to initiate deposit');
+      }
+
+      const initiateData = await initiateResponse.json();
+      const depositId = initiateData.depositId;
+
+      // Step 2: Verify deposit to move to PENDING_REVIEW
+      const verifyResponse = await fetch(`/api/deposits/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ depositId })
+      });
+
+      if (!verifyResponse.ok) {
+        const error = await verifyResponse.json().catch(() => ({}));
+        throw new Error(error.message || 'Failed to verify deposit');
+      }
+
+      const verifyData = await verifyResponse.json();
+
+      return {
+        success: true,
+        depositId: depositId,
+        status: verifyData.status,
+        message: verifyData.message || 'Deposit submitted. Awaiting admin approval.'
+      };
+
+    } catch (error) {
+      console.error('Deposit API error:', error);
+
+      // Fallback to localStorage if API fails
+      const transaction = {
+        id: generateTransactionId(),
+        accountId: accountId,
+        username: user.firstName ? `${user.firstName} ${user.lastName}` : user.username || accountId,
+        phone: user.phoneNumber || user.phone || '',
+        type: 'DEPOSIT',
+        amount: depositAmount,
+        bank: bankDetails.bank || 'N/A',
+        bankAccount: bankDetails.accountNumber || '',
+        paymentMethod: paymentMethod,
+        status: 'PENDING',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        notes: bankDetails.notes || '',
+        proofUrl: bankDetails.proofUrl || null
+      };
+
+      const pending = getPendingTransactions();
+      pending.unshift(transaction);
+      savePendingTransactions(pending);
+
+      return {
+        success: true,
+        transaction,
+        message: 'Deposit request submitted (offline mode). Awaiting admin approval.'
+      };
+    }
+  },
+
+  // Request a withdrawal (creates pending transaction for admin approval)
+  async requestWithdrawal(amount, paymentMethod = 'Bank Transfer', bankDetails = {}) {
+    const user = JSON.parse(localStorage.getItem('team33_user') || localStorage.getItem('user') || '{}');
+    const accountId = user.accountId || user.id;
+
+    if (!accountId) {
+      return { success: false, error: 'Not logged in' };
+    }
+
+    const withdrawAmount = Number(amount);
+    if (withdrawAmount < 20) {
+      return { success: false, error: 'Minimum withdrawal is $20' };
+    }
+
+    // Check current balance
+    const balanceResult = await this.getBalance(accountId);
+    if (!balanceResult.success) {
+      return { success: false, error: 'Could not verify balance' };
+    }
+
+    const currentBalance = balanceResult.balance || 0;
+    if (currentBalance < withdrawAmount) {
+      return {
+        success: false,
+        error: `Insufficient funds. Current balance: $${currentBalance.toFixed(2)}`,
+        currentBalance,
+        requestedAmount: withdrawAmount
+      };
+    }
+
+    const transaction = {
+      id: generateTransactionId(),
+      accountId: accountId,
+      username: user.firstName ? `${user.firstName} ${user.lastName}` : user.username || accountId,
+      phone: user.phoneNumber || user.phone || '',
+      type: 'WITHDRAWAL',
+      amount: withdrawAmount,
+      bank: bankDetails.bank || 'N/A',
+      bankAccount: bankDetails.accountNumber || '',
+      bankName: bankDetails.accountName || '',
+      bsb: bankDetails.bsb || '',
+      paymentMethod: paymentMethod,
+      status: 'PENDING',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      notes: bankDetails.notes || ''
+    };
+
+    // Save to pending transactions
+    const pending = getPendingTransactions();
+    pending.unshift(transaction);
+    savePendingTransactions(pending);
+
+    return {
+      success: true,
+      transaction,
+      message: 'Withdrawal request submitted. Awaiting admin approval.'
+    };
+  },
+
+  // Get user's pending transactions
+  async getPendingTransactions(accountId = null) {
+    if (!accountId) {
+      const user = JSON.parse(localStorage.getItem('team33_user') || localStorage.getItem('user') || '{}');
+      accountId = user.accountId || user.id;
+    }
+
+    if (!accountId) {
+      return { success: false, error: 'Not logged in' };
+    }
+
+    const allPending = getPendingTransactions();
+    const userPending = allPending.filter(tx => tx.accountId === accountId);
+
+    return {
+      success: true,
+      transactions: userPending
+    };
+  },
+
+  // Get all transactions including pending (for user view)
+  async getAllUserTransactions(accountId = null) {
+    if (!accountId) {
+      const user = JSON.parse(localStorage.getItem('team33_user') || localStorage.getItem('user') || '{}');
+      accountId = user.accountId || user.id;
+    }
+
+    if (!accountId) {
+      return { success: false, error: 'Not logged in' };
+    }
+
+    // Get completed transactions from wallet
+    const walletTx = await this.getTransactions({ accountId });
+    const completedTx = walletTx.success ? walletTx.transactions : [];
+
+    // Get pending transactions
+    const allPending = getPendingTransactions();
+    const userPending = allPending.filter(tx => tx.accountId === accountId);
+
+    // Get all transactions history
+    const allHistoryStr = localStorage.getItem('team33_all_transactions');
+    const allHistory = allHistoryStr ? JSON.parse(allHistoryStr) : [];
+    const userHistory = allHistory.filter(tx => tx.accountId === accountId);
+
+    // Combine and sort by date
+    const allTransactions = [...userPending, ...userHistory, ...completedTx]
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    return {
+      success: true,
+      transactions: allTransactions
+    };
+  }
 };
 
 export default walletService;

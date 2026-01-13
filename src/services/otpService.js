@@ -2,6 +2,10 @@
 const OTP_API_BASE = '/api/otp';
 const API_KEY = 'team33-admin-secret-key-change-in-prod';
 
+// Dev bypass - use code "000000" to skip OTP
+const DEV_BYPASS_CODE = '000000';
+const BYPASS_ENABLED = true; // Set to false to use real OTP API
+
 class OTPService {
   constructor() {
     this.headers = {
@@ -31,9 +35,22 @@ class OTPService {
 
   // Send OTP to phone number
   async sendOTP(phoneNumber) {
-    try {
-      const formattedPhone = this.formatPhoneNumber(phoneNumber);
+    const formattedPhone = this.formatPhoneNumber(phoneNumber);
 
+    // Dev bypass - simulate successful OTP send
+    if (BYPASS_ENABLED) {
+      console.log('[DEV] OTP send simulated for:', formattedPhone);
+      console.log('[DEV] Use code "000000" to verify');
+      return {
+        success: true,
+        message: 'Dev mode - use code 000000',
+        requestId: 'dev-bypass',
+        expiresInSeconds: 300,
+        maskedPhone: formattedPhone.replace(/(\+\d{2})\d{6}(\d{4})/, '$1******$2'),
+      };
+    }
+
+    try {
       const response = await fetch(`${OTP_API_BASE}/send`, {
         method: 'POST',
         headers: this.headers,
@@ -69,6 +86,16 @@ class OTPService {
 
   // Verify OTP code
   async verifyOTP(phoneNumber, otp) {
+    // Dev bypass - use "000000" to skip verification
+    if (BYPASS_ENABLED && otp === DEV_BYPASS_CODE) {
+      console.log('[DEV] OTP bypass activated');
+      return {
+        success: true,
+        verified: true,
+        message: 'Dev bypass - phone verified',
+      };
+    }
+
     try {
       const formattedPhone = this.formatPhoneNumber(phoneNumber);
 
@@ -124,6 +151,16 @@ class OTPService {
 
   // Resend OTP
   async resendOTP(phoneNumber) {
+    // Dev bypass - simulate successful resend
+    if (BYPASS_ENABLED) {
+      console.log('[DEV] OTP resend simulated');
+      return {
+        success: true,
+        message: 'Dev mode - use code 000000',
+        expiresInSeconds: 300,
+      };
+    }
+
     try {
       const formattedPhone = this.formatPhoneNumber(phoneNumber);
 

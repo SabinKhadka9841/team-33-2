@@ -47,9 +47,9 @@ function App() {
             <ToastContainer />
             <Suspense fallback={<PageLoader />}>
               <Routes>
-              {/* Auth Routes - No Layout */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
+              {/* Auth Routes - With Layout */}
+              <Route path="/login" element={<WithLayout><Login /></WithLayout>} />
+              <Route path="/signup" element={<WithLayout><Signup /></WithLayout>} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/terms" element={<Terms />} />
 

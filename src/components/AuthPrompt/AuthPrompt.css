@@ -12,13 +12,13 @@
   max-width: 420px;
   background: linear-gradient(
     145deg,
-    rgba(16, 185, 129, 0.08) 0%,
-    rgba(20, 30, 25, 0.95) 30%,
-    rgba(15, 25, 20, 0.98) 100%
+    #141e19 0%,
+    #0f1914 50%,
+    #0a0f0c 100%
   );
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.2);
   border-radius: 24px;
   padding: 48px 40px;
   text-align: center;

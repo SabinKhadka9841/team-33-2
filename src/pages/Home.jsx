@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { gameService } from '../services/gameService'
 import { apiClient } from '../services/api'
+import { walletService } from '../services/walletService'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { useTranslation } from '../context/TranslationContext'
@@ -74,7 +75,7 @@ const GAME_CATEGORIES = [
 
 export default function Home() {
   const navigate = useNavigate()
-  const { isAuthenticated, user } = useAuth()
+  const { isAuthenticated, user, updateBalance, notifyTransactionUpdate } = useAuth()
   const { showToast } = useToast()
   const { t } = useTranslation()
 
@@ -128,6 +129,76 @@ export default function Home() {
     }
     fetchBanners()
   }, [])
+
+  // Sync balance when game closes and listen for game messages
+  useEffect(() => {
+    // Function to sync balance from backend
+    const syncBalance = async () => {
+      if (user?.accountId) {
+        try {
+          const result = await walletService.getBalance(user.accountId)
+          if (result.success && result.balance !== undefined) {
+            // Update user balance in context if available
+            if (typeof updateBalance === 'function') {
+              updateBalance(result.balance)
+            }
+            // Also update localStorage
+            const storedUser = JSON.parse(localStorage.getItem('team33_user') || localStorage.getItem('user') || '{}')
+            if (storedUser.accountId) {
+              storedUser.balance = result.balance
+              localStorage.setItem('user', JSON.stringify(storedUser))
+              if (localStorage.getItem('team33_user')) {
+                localStorage.setItem('team33_user', JSON.stringify(storedUser))
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Failed to sync balance:', error)
+        }
+      }
+    }
+
+    // Sync balance when game closes
+    if (!embeddedGame && user?.accountId) {
+      syncBalance()
+    }
+
+    // Listen for messages from game iframe (balance updates, game results)
+    const handleGameMessage = (event) => {
+      // Validate origin if needed
+      const data = event.data
+
+      if (data?.type === 'BALANCE_UPDATE' && data.balance !== undefined) {
+        // Update balance from game iframe message
+        walletService.updateBalance(data.balance, user?.accountId)
+        if (typeof updateBalance === 'function') {
+          updateBalance(data.balance)
+        }
+      }
+
+      if (data?.type === 'GAME_WIN' || data?.type === 'GAME_LOSS') {
+        // Record game transaction
+        const isWin = data.type === 'GAME_WIN'
+        walletService.recordGameTransaction(
+          data.amount || 0,
+          data.gameName || embeddedGame?.name || 'Game',
+          isWin,
+          user?.accountId
+        )
+        notifyTransactionUpdate() // Refresh transaction history
+      }
+
+      if (data?.type === 'GAME_EXIT') {
+        // Game requested exit, sync balance and close
+        syncBalance()
+        setEmbeddedGame(null)
+        notifyTransactionUpdate() // Refresh transaction history
+      }
+    }
+
+    window.addEventListener('message', handleGameMessage)
+    return () => window.removeEventListener('message', handleGameMessage)
+  }, [embeddedGame, user?.accountId, notifyTransactionUpdate])
 
   // Show promo popup on first visit (once per session)
   useEffect(() => {

@@ -2,6 +2,19 @@
 const API_KEY = 'team33-admin-secret-key-change-in-prod';
 const LOCAL_ACCOUNTS_KEY = 'team33_local_accounts';
 
+// Generate unique Account ID (ACC-XXXXXX format)
+const generateAccountId = () => {
+  const timestamp = Date.now().toString(36).toUpperCase();
+  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `ACC-${timestamp}${random}`;
+};
+
+// Generate unique User ID (UID-XXXXXXXX format)
+const generateUserId = () => {
+  const num = Math.floor(10000000 + Math.random() * 90000000);
+  return `UID-${num}`;
+};
+
 class AccountService {
   constructor() {
     this.headers = {
@@ -36,7 +49,7 @@ class AccountService {
   async register({ password, firstName, lastName, phoneNumber }) {
     try {
       // Try external API first
-      const response = await fetch('/api/accounts/register', {
+      const response = await fetch('/api/accounts', {
         method: 'POST',
         headers: this.headers,
         body: JSON.stringify({
@@ -54,6 +67,7 @@ class AccountService {
           success: true,
           account: data,
           accountId: data.accountId,
+          userId: data.userId || generateUserId(), // Generate userId if API doesn't return one
         };
       }
 
@@ -87,10 +101,14 @@ class AccountService {
       };
     }
 
+    // Generate unique IDs
+    const accountId = generateAccountId();
+    const userId = generateUserId();
+
     // Create new local account
-    const accountId = 'local_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     const account = {
       accountId,
+      userId,
       phoneNumber,
       firstName,
       lastName,
@@ -106,6 +124,7 @@ class AccountService {
       success: true,
       account,
       accountId,
+      userId,
       isLocal: true,
     };
   }
@@ -174,7 +193,7 @@ class AccountService {
 
   // Login with phone and password
   async loginWithPhone(phoneNumber, password) {
-    // Check local accounts
+    // Check local accounts first
     const localAccount = this.findLocalAccountByPhone(phoneNumber);
     if (localAccount) {
       if (localAccount.password === password) {
@@ -188,8 +207,34 @@ class AccountService {
       return { success: false, error: 'Invalid password' };
     }
 
-    // Try external API login if available
-    return { success: false, error: 'Account not found' };
+    // Try external API - check if account exists by phone
+    try {
+      const encodedPhone = encodeURIComponent(phoneNumber);
+      const response = await fetch(`/api/accounts/phone/${encodedPhone}`, {
+        method: 'GET',
+        headers: this.headers,
+      });
+
+      if (response.ok) {
+        const account = await response.json();
+        // Account exists in backend - OTP will handle verification
+        return {
+          success: true,
+          account: account,
+          accountId: account.accountId,
+          isExternal: true,
+        };
+      }
+
+      if (response.status === 404) {
+        return { success: false, error: 'Account not found' };
+      }
+
+      return { success: false, error: 'Failed to verify account' };
+    } catch (error) {
+      console.error('Login API error:', error);
+      return { success: false, error: 'Connection error. Please try again.' };
+    }
   }
 
   // Get account by email (kept for compatibility)

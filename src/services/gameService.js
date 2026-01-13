@@ -274,7 +274,13 @@ export const gameService = {
     }
 
     const GAME_LAUNCH_API = 'https://api.team33.mx/api/games/launch';
-    const ACCOUNT_ID = 'ACC284290827402874880';
+
+    // Get user's actual accountId from localStorage
+    const user = JSON.parse(localStorage.getItem('team33_user') || localStorage.getItem('user') || '{}');
+    const userAccountId = user.accountId || userId;
+
+    // Fallback to demo account if no user logged in
+    const ACCOUNT_ID = userAccountId || 'ACC284290827402874880';
 
     try {
       const response = await fetch(GAME_LAUNCH_API, {

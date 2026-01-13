@@ -1,44 +1,37 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
-import { useTranslation } from '../context/TranslationContext'
 import { otpService } from '../services/otpService'
 import { accountService } from '../services/accountService'
 import { walletService } from '../services/walletService'
 import { ButtonSpinner } from '../components/LoadingSpinner/LoadingSpinner'
-import logo from '../images/New logo.png'
+import signupBanner from '../images/login and signup banner.png'
 import './Signup.css'
 
 export default function Signup() {
   const navigate = useNavigate()
   const { login, isAuthenticated } = useAuth()
   const { showToast } = useToast()
-  const { t } = useTranslation()
 
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    fullName: '',
     phone: '',
     password: '',
-    confirmPassword: '',
     referralCode: ''
   })
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  // OTP Modal State
-  const [showOtpModal, setShowOtpModal] = useState(false)
-  const [otpCode, setOtpCode] = useState(['', '', '', '', '', ''])
+  // Inline OTP State (not modal)
+  const [otpCode, setOtpCode] = useState('')
   const [otpSending, setOtpSending] = useState(false)
   const [otpVerifying, setOtpVerifying] = useState(false)
   const [countdown, setCountdown] = useState(0)
   const [otpSent, setOtpSent] = useState(false)
-  const otpInputRefs = useRef([])
+  const [otpVerified, setOtpVerified] = useState(false)
+  const [otpError, setOtpError] = useState('')
 
-  // Password strength
-  const [passwordStrength, setPasswordStrength] = useState({ valid: false, errors: [] })
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -54,20 +47,6 @@ export default function Signup() {
     }
   }, [countdown])
 
-  // Validate password on change
-  useEffect(() => {
-    if (formData.password) {
-      setPasswordStrength(accountService.validatePassword(formData.password))
-    }
-  }, [formData.password])
-
-  // Auto-focus first OTP input when modal opens
-  useEffect(() => {
-    if (showOtpModal && otpSent) {
-      setTimeout(() => otpInputRefs.current[0]?.focus(), 100)
-    }
-  }, [showOtpModal, otpSent])
-
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData(prev => ({
@@ -76,75 +55,46 @@ export default function Signup() {
     }))
   }
 
-  // Handle OTP input
-  const handleOtpChange = (index, value) => {
-    if (value && !/^\d$/.test(value)) return
-
-    const newOtp = [...otpCode]
-    newOtp[index] = value
-    setOtpCode(newOtp)
-
-    if (value && index < 5) {
-      otpInputRefs.current[index + 1]?.focus()
-    }
-
-    // Auto verify when all digits entered
-    if (value && index === 5 && newOtp.every(d => d !== '')) {
-      handleVerifyOtp(newOtp.join(''))
-    }
-  }
-
-  const handleOtpKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !otpCode[index] && index > 0) {
-      otpInputRefs.current[index - 1]?.focus()
-    }
-  }
-
-  const handleOtpPaste = (e) => {
-    e.preventDefault()
-    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6)
-    if (pastedData.length === 6) {
-      const newOtp = pastedData.split('')
-      setOtpCode(newOtp)
-      otpInputRefs.current[5]?.focus()
-      handleVerifyOtp(pastedData)
-    }
-  }
-
   // Send OTP
   const sendOtp = async () => {
+    if (!formData.phone || formData.phone.length < 8) {
+      showToast('Please enter a valid phone number first', 'error')
+      return
+    }
+
     setOtpSending(true)
+    setOtpError('')
     const result = await otpService.sendOTP(formData.phone)
     setOtpSending(false)
 
     if (result.success) {
       setOtpSent(true)
-      setCountdown(result.expiresInSeconds || 300)
-      showToast(`Verification code sent to ${result.maskedPhone}`, 'success')
+      setCountdown(60)
+      showToast('Verification code sent!', 'success')
     } else {
+      setOtpError(result.error || 'Failed to send verification code')
       showToast(result.error || 'Failed to send verification code', 'error')
     }
   }
 
-  // Verify OTP and complete registration
-  const handleVerifyOtp = async (code) => {
-    if (!code || code.length !== 6) {
-      showToast('Please enter the 6-digit code', 'error')
+  // Verify OTP
+  const verifyOtp = async () => {
+    if (!otpCode || otpCode.length !== 6) {
+      setOtpError('Please enter the 6-digit code')
       return
     }
 
     setOtpVerifying(true)
-    const result = await otpService.verifyOTP(formData.phone, code)
+    setOtpError('')
+    const result = await otpService.verifyOTP(formData.phone, otpCode)
 
     if (result.success && result.verified) {
-      showToast('Phone verified! Creating your account...', 'success')
-      await completeRegistration()
+      setOtpVerified(true)
+      showToast('Phone verified successfully!', 'success')
     } else {
-      setOtpVerifying(false)
-      showToast(result.error || `Invalid code. ${result.remainingAttempts} attempts remaining.`, 'error')
-      setOtpCode(['', '', '', '', '', ''])
-      otpInputRefs.current[0]?.focus()
+      setOtpError(result.error || 'Invalid verification code')
     }
+    setOtpVerifying(false)
   }
 
   // Resend OTP
@@ -152,45 +102,50 @@ export default function Signup() {
     if (countdown > 0) return
 
     setOtpSending(true)
+    setOtpError('')
     const result = await otpService.resendOTP(formData.phone)
     setOtpSending(false)
 
     if (result.success) {
-      setCountdown(result.expiresInSeconds || 300)
-      setOtpCode(['', '', '', '', '', ''])
+      setCountdown(60)
+      setOtpCode('')
       showToast('New code sent!', 'success')
     } else {
       showToast(result.error || 'Failed to resend code', 'error')
     }
   }
 
-  // Complete registration after OTP verification
+  // Complete registration
   const completeRegistration = async () => {
     try {
       const formattedPhone = otpService.formatPhoneNumber(formData.phone)
+      const nameParts = formData.fullName.trim().split(' ')
+      const firstName = nameParts[0] || 'User'
+      // Use first name as last name if only one name provided (API requires both)
+      const lastName = nameParts.slice(1).join(' ') || firstName
 
       // 1. Create account via external API
       const registerResult = await accountService.register({
         password: formData.password,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
+        firstName: firstName,
+        lastName: lastName,
         phoneNumber: formattedPhone,
       })
 
       if (!registerResult.success) {
         showToast(registerResult.error || 'Registration failed', 'error')
-        setOtpVerifying(false)
-        setShowOtpModal(false)
+        setLoading(false)
         return
       }
 
-      const { accountId } = registerResult
+      const { accountId, userId } = registerResult
 
       // 2. Create wallet for the account
       const walletResult = await walletService.createWallet(accountId)
       if (!walletResult.success) {
         console.warn('Wallet creation failed:', walletResult.error)
       }
+      const walletId = walletResult.walletId
 
       // 3. Get wallet balance
       const balanceResult = await walletService.getBalance(accountId)
@@ -199,9 +154,11 @@ export default function Signup() {
       // 4. Store user data and login
       const userData = {
         accountId,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        fullName: `${formData.firstName} ${formData.lastName}`,
+        userId,
+        walletId,
+        firstName: firstName,
+        lastName: lastName,
+        fullName: formData.fullName,
         phone: formattedPhone,
         balance,
         status: registerResult.account?.status || 'ACTIVE',
@@ -209,6 +166,8 @@ export default function Signup() {
 
       localStorage.setItem('user', JSON.stringify(userData))
       localStorage.setItem('accountId', accountId)
+      localStorage.setItem('userId', userId)
+      localStorage.setItem('walletId', walletId)
 
       await login({
         username: formattedPhone,
@@ -222,22 +181,17 @@ export default function Signup() {
     } catch (error) {
       console.error('Registration error:', error)
       showToast('Registration failed. Please try again.', 'error')
-      setOtpVerifying(false)
+      setLoading(false)
     }
   }
 
-  // Form submission - validate and show OTP modal
+  // Form submission
   const handleSubmit = async (e) => {
     e.preventDefault()
 
     // Validation
-    if (!formData.firstName || formData.firstName.length < 2) {
-      showToast('Please enter your first name', 'error')
-      return
-    }
-
-    if (!formData.lastName || formData.lastName.length < 2) {
-      showToast('Please enter your last name', 'error')
+    if (!formData.fullName || formData.fullName.trim().length < 2) {
+      showToast('Please enter your full name', 'error')
       return
     }
 
@@ -246,121 +200,88 @@ export default function Signup() {
       return
     }
 
-    // Validate password
-    if (!passwordStrength.valid) {
-      showToast(passwordStrength.errors[0], 'error')
+    if (!formData.password || formData.password.length < 6) {
+      showToast('Password must be at least 6 characters', 'error')
       return
     }
 
-    if (formData.password !== formData.confirmPassword) {
-      showToast('Passwords do not match', 'error')
+    if (!otpVerified) {
+      showToast('Please verify your phone number first', 'error')
       return
     }
 
-    // All validation passed - show OTP modal and send code
     setLoading(true)
-    setShowOtpModal(true)
-    await sendOtp()
-    setLoading(false)
-  }
-
-  const formatCountdown = (seconds) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs.toString().padStart(2, '0')}`
-  }
-
-  const closeOtpModal = () => {
-    setShowOtpModal(false)
-    setOtpCode(['', '', '', '', '', ''])
-    setOtpSent(false)
-    setCountdown(0)
+    await completeRegistration()
   }
 
   return (
-    <div className="auth-page-new">
-      <Link to="/" className="auth-back-btn">
+    <div className="signup-page-golden">
+      {/* Back Button */}
+      <Link to="/" className="back-btn-golden">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M19 12H5M12 19l-7-7 7-7"/>
         </svg>
         <span>Back</span>
       </Link>
 
-      <div className="auth-container">
-        <div className="auth-form-card signup-card">
-          <div className="auth-header">
-            <img src={logo} alt="Team33" className="auth-logo" />
-            <h1>Create Account</h1>
-            <p>Join Team33 and start winning</p>
-          </div>
 
-          <form onSubmit={handleSubmit} className="auth-form-new">
-            {/* Name Row */}
-            <div className="form-row-double">
-              <div className="form-row">
-                <label className="form-label">First Name</label>
-                <div className="form-input-wrap">
-                  <input
-                    type="text"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    placeholder="First name"
-                    required
-                    autoComplete="given-name"
-                  />
-                </div>
-              </div>
-              <div className="form-row">
-                <label className="form-label">Last Name</label>
-                <div className="form-input-wrap">
-                  <input
-                    type="text"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    placeholder="Last name"
-                    required
-                    autoComplete="family-name"
-                  />
-                </div>
-              </div>
+      <div className="signup-layout">
+        {/* Banner Section */}
+        <div className="signup-banner">
+          <img src={signupBanner} alt="Welcome Banner" />
+        </div>
+
+        {/* Form Section */}
+        <div className="signup-form-section">
+          <form onSubmit={handleSubmit} className="signup-form-golden">
+            {/* Full Name */}
+            <div className="form-row-inline">
+              <label className="form-label-inline">Full Name</label>
+              <input
+                type="text"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                placeholder="Enter your full name"
+                className="form-input-inline"
+                required
+                autoComplete="name"
+              />
             </div>
-            <span className="form-hint">Must match your bank account name</span>
+            <p className="form-hint-golden">*Must Be The Same As Your Bank Account Name.</p>
 
-            {/* Phone */}
-            <div className="form-row">
-              <label className="form-label">Mobile Number</label>
-              <div className="form-input-wrap">
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="+61 412 345 678"
-                  required
-                  autoComplete="tel"
-                />
-              </div>
-              <span className="form-hint">We'll send a verification code to this number</span>
+            {/* Mobile No */}
+            <div className="form-row-inline">
+              <label className="form-label-inline">Mobile No</label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="e.g. 61480050689"
+                className="form-input-inline"
+                required
+                autoComplete="tel"
+              />
             </div>
 
             {/* Password */}
-            <div className="form-row">
-              <label className="form-label">Password</label>
-              <div className="form-input-wrap">
+            <div className="form-row-inline">
+              <label className="form-label-inline">Password</label>
+              <div className="password-wrap-inline">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder="Create a strong password"
+                  placeholder="6 - 20 characters"
+                  className="form-input-inline"
                   required
                   autoComplete="new-password"
                 />
                 <button
                   type="button"
-                  className="password-toggle"
+                  className="password-toggle-inline"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -376,164 +297,135 @@ export default function Signup() {
                   )}
                 </button>
               </div>
-              {formData.password && (
-                <div className={`password-strength ${passwordStrength.valid ? 'valid' : 'invalid'}`}>
-                  {passwordStrength.valid ? (
-                    <span className="strength-valid">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                        <polyline points="20 6 9 17 4 12"/>
-                      </svg>
-                      Password meets requirements
-                    </span>
-                  ) : (
-                    <span className="strength-invalid">{passwordStrength.errors[0]}</span>
-                  )}
-                </div>
-              )}
             </div>
 
-            {/* Confirm Password */}
-            <div className="form-row">
-              <label className="form-label">Confirm Password</label>
-              <div className="form-input-wrap">
-                <input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  placeholder="Confirm your password"
-                  required
-                  autoComplete="new-password"
-                />
-                <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  {showConfirmPassword ? (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                      <line x1="1" y1="1" x2="23" y2="23"/>
-                    </svg>
-                  ) : (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                      <circle cx="12" cy="12" r="3"/>
-                    </svg>
-                  )}
-                </button>
-              </div>
-              {formData.confirmPassword && formData.password !== formData.confirmPassword && (
-                <span className="form-error">Passwords do not match</span>
-              )}
+            {/* Referrer Code */}
+            <div className="form-row-inline">
+              <label className="form-label-inline">Referrer Code</label>
+              <input
+                type="text"
+                name="referralCode"
+                value={formData.referralCode}
+                onChange={handleChange}
+                placeholder="Optional"
+                className="form-input-inline"
+                autoComplete="off"
+              />
             </div>
 
-            {/* Referral Code */}
-            <div className="form-row">
-              <label className="form-label">Referral Code</label>
-              <div className="form-input-wrap">
+            {/* OTP Section - Inline */}
+            <div className="otp-section-inline">
+              <p className="otp-instruction">Press GET CODE Button To Receive Verification Code Via SMS.</p>
+
+              <div className="otp-row">
                 <input
                   type="text"
-                  name="referralCode"
-                  value={formData.referralCode}
-                  onChange={handleChange}
-                  placeholder="Optional"
-                  autoComplete="off"
+                  value={otpCode}
+                  onChange={(e) => {
+                    setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))
+                    setOtpError('')
+                  }}
+                  placeholder="Enter 6-digit code"
+                  className="otp-input-inline"
+                  maxLength={6}
+                  disabled={otpVerified}
                 />
+                {!otpVerified && (
+                  <button
+                    type="button"
+                    className="get-code-btn"
+                    onClick={otpSent && otpCode.length === 6 ? verifyOtp : sendOtp}
+                    disabled={otpSending || otpVerifying || (otpSent && countdown > 0 && otpCode.length < 6)}
+                  >
+                    {otpSending ? (
+                      <ButtonSpinner />
+                    ) : otpVerifying ? (
+                      <ButtonSpinner />
+                    ) : otpSent && otpCode.length === 6 ? (
+                      'VERIFY'
+                    ) : otpSent && countdown > 0 ? (
+                      `${countdown}s`
+                    ) : (
+                      'GET CODE'
+                    )}
+                  </button>
+                )}
               </div>
+
+              {/* OTP Status */}
+              {otpVerified && (
+                <div className="otp-status success">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  Phone number verified
+                </div>
+              )}
+
+              {otpError && (
+                <div className="otp-status error">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                  </svg>
+                  {otpError}
+                </div>
+              )}
+
+              {/* Resend option */}
+              {otpSent && !otpVerified && countdown === 0 && (
+                <button
+                  type="button"
+                  className="otp-resend-btn"
+                  onClick={handleResendOtp}
+                  disabled={otpSending}
+                >
+                  Resend Code
+                </button>
+              )}
+
+              {otpSent && !otpVerified && countdown > 0 && (
+                <p className="otp-timer">
+                  Code expires in <span>{countdown}s</span>
+                </p>
+              )}
             </div>
 
+            {/* Register Button */}
             <button
               type="submit"
-              className="auth-submit-btn"
-              disabled={loading || !passwordStrength.valid}
+              className="register-btn-golden"
+              disabled={loading || !otpVerified}
             >
-              {loading ? <ButtonSpinner /> : 'Create Account'}
+              {loading ? <ButtonSpinner /> : 'REGISTER'}
             </button>
           </form>
 
-          <div className="auth-alt-section">
+          {/* Login Link */}
+          <div className="login-link-section">
             <p>Already have an account?</p>
-            <Link to="/login" className="auth-alt-btn">Sign In</Link>
+            <Link to="/login" className="login-link-golden">LOGIN HERE</Link>
           </div>
         </div>
       </div>
 
-      {/* OTP Verification Modal */}
-      {showOtpModal && (
-        <div className="otp-modal-overlay" onClick={(e) => e.target === e.currentTarget && !otpVerifying && closeOtpModal()}>
-          <div className="otp-modal">
-            <button
-              className="otp-modal-close"
-              onClick={closeOtpModal}
-              disabled={otpVerifying}
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M18 6L6 18M6 6l12 12"/>
-              </svg>
-            </button>
-
-            <div className="otp-modal-header">
-              <div className="otp-modal-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                </svg>
-              </div>
-              <h2>Verify Your Phone</h2>
-              <p>Enter the 6-digit code sent to<br/><strong>{formData.phone}</strong></p>
-            </div>
-
-            {otpSending && !otpSent ? (
-              <div className="otp-sending">
-                <ButtonSpinner />
-                <span>Sending verification code...</span>
-              </div>
-            ) : otpVerifying ? (
-              <div className="otp-verifying-state">
-                <ButtonSpinner />
-                <span>Verifying & creating account...</span>
-              </div>
-            ) : (
-              <>
-                <div className="otp-modal-inputs" onPaste={handleOtpPaste}>
-                  {otpCode.map((digit, index) => (
-                    <input
-                      key={index}
-                      ref={el => otpInputRefs.current[index] = el}
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={1}
-                      value={digit}
-                      onChange={(e) => handleOtpChange(index, e.target.value)}
-                      onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                      className={`otp-modal-input ${digit ? 'filled' : ''}`}
-                      disabled={otpVerifying}
-                      autoFocus={index === 0}
-                    />
-                  ))}
-                </div>
-
-                {countdown > 0 && (
-                  <p className="otp-timer-text">
-                    Code expires in <span>{formatCountdown(countdown)}</span>
-                  </p>
-                )}
-
-                <div className="otp-modal-actions">
-                  <button
-                    type="button"
-                    className="otp-resend-link"
-                    onClick={handleResendOtp}
-                    disabled={countdown > 0 || otpSending}
-                  >
-                    {otpSending ? 'Sending...' : countdown > 0 ? `Resend in ${formatCountdown(countdown)}` : "Didn't receive code? Resend"}
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+      {/* Side Action Buttons (Desktop Only) */}
+      <div className="side-actions">
+        <a href="https://facebook.com/Team33" target="_blank" rel="noopener noreferrer" className="side-action-btn follow">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M14 13.5h2.5l1-4H14v-2c0-1.03 0-2 2-2h1.5V2.14c-.326-.043-1.557-.14-2.857-.14C11.928 2 10 3.657 10 6.7v2.8H7v4h3V22h4v-8.5z"/>
+          </svg>
+          <span>FOLLOW US</span>
+        </a>
+        <a href="mailto:support@team33.com" className="side-action-btn complain">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 8v4M12 16h.01"/>
+          </svg>
+          <span>COMPLAIN US</span>
+        </a>
+      </div>
     </div>
   )
 }

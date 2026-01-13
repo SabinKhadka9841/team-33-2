@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { gameService } from '../services/gameService'
+import { walletService } from '../services/walletService'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { CATEGORIES } from '../data/gameData'
@@ -59,7 +60,7 @@ function LazyImage({ src, alt, className }) {
 
 export default function Slot() {
   const navigate = useNavigate()
-  const { isAuthenticated, user } = useAuth()
+  const { isAuthenticated, user, updateBalance, notifyTransactionUpdate } = useAuth()
   const { showToast } = useToast()
 
   const [games, setGames] = useState([])
@@ -77,6 +78,64 @@ export default function Slot() {
     totalPages: 1,
     total: 0,
   })
+
+  // Sync balance when game closes and listen for game messages
+  useEffect(() => {
+    const syncBalance = async () => {
+      if (user?.accountId) {
+        try {
+          const result = await walletService.getBalance(user.accountId)
+          if (result.success && result.balance !== undefined) {
+            if (typeof updateBalance === 'function') {
+              updateBalance(result.balance)
+            }
+            const storedUser = JSON.parse(localStorage.getItem('team33_user') || localStorage.getItem('user') || '{}')
+            if (storedUser.accountId) {
+              storedUser.balance = result.balance
+              localStorage.setItem('user', JSON.stringify(storedUser))
+              if (localStorage.getItem('team33_user')) {
+                localStorage.setItem('team33_user', JSON.stringify(storedUser))
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Failed to sync balance:', error)
+        }
+      }
+    }
+
+    if (!embeddedGame && user?.accountId) {
+      syncBalance()
+    }
+
+    const handleGameMessage = (event) => {
+      const data = event.data
+      if (data?.type === 'BALANCE_UPDATE' && data.balance !== undefined) {
+        walletService.updateBalance(data.balance, user?.accountId)
+        if (typeof updateBalance === 'function') {
+          updateBalance(data.balance)
+        }
+      }
+      if (data?.type === 'GAME_WIN' || data?.type === 'GAME_LOSS') {
+        const isWin = data.type === 'GAME_WIN'
+        walletService.recordGameTransaction(
+          data.amount || 0,
+          data.gameName || embeddedGame?.name || 'Game',
+          isWin,
+          user?.accountId
+        )
+        notifyTransactionUpdate() // Refresh transaction history
+      }
+      if (data?.type === 'GAME_EXIT') {
+        syncBalance()
+        setEmbeddedGame(null)
+        notifyTransactionUpdate() // Refresh transaction history
+      }
+    }
+
+    window.addEventListener('message', handleGameMessage)
+    return () => window.removeEventListener('message', handleGameMessage)
+  }, [embeddedGame, user?.accountId, updateBalance, notifyTransactionUpdate])
 
   // Debounce search query
   useEffect(() => {

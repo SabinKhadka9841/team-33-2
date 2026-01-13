@@ -36,7 +36,7 @@
 .settings-tabs {
   display: flex;
   border-bottom: 1px solid var(--border-subtle);
-  background: rgba(0, 0, 0, 0.2);
+  background: #0a0d0a;
 }
 
 .tab-btn {
@@ -111,8 +111,8 @@
 .form-group select {
   width: 100%;
   padding: 14px 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-subtle);
+  background: #0f1410;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-md);
   color: var(--text-primary);
   font-size: 15px;
@@ -191,9 +191,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.03);
+  background: #0f1410;
   border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .preference-info {

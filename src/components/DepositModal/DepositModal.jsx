@@ -15,7 +15,7 @@ const paymentMethods = [
 const quickAmounts = [50, 100, 200, 500, 1000]
 
 export default function DepositModal({ isOpen, onClose }) {
-  const { user, updateBalance } = useAuth()
+  const { user, notifyTransactionUpdate } = useAuth()
   const { showToast } = useToast()
 
   const [amount, setAmount] = useState('')
@@ -46,15 +46,20 @@ export default function DepositModal({ isOpen, onClose }) {
     setStep('processing')
 
     const selectedMethod = paymentMethods.find(m => m.id === paymentMethod)
-    const result = await walletService.deposit(depositAmount, selectedMethod?.name || 'Credit Card')
+
+    // Create pending deposit request for admin approval
+    const result = await walletService.requestDeposit(depositAmount, selectedMethod?.name || 'Bank Transfer', {
+      bank: selectedMethod?.name || 'N/A',
+      paymentMethod: selectedMethod?.name
+    })
 
     if (result.success) {
       setStep('success')
-      updateBalance(result.newBalance)
-      showToast(`Successfully deposited $${depositAmount.toFixed(2)}!`, 'success')
+      showToast(result.message || 'Deposit request submitted! Awaiting admin approval.', 'success')
+      notifyTransactionUpdate() // Refresh transaction history
     } else {
       setStep('amount')
-      showToast(result.error || 'Deposit failed', 'error')
+      showToast(result.error || 'Deposit request failed', 'error')
     }
 
     setLoading(false)
@@ -77,15 +82,18 @@ export default function DepositModal({ isOpen, onClose }) {
 
         {step === 'success' ? (
           <div className="deposit-success">
-            <div className="success-icon">
-              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                <polyline points="22 4 12 14.01 9 11.01"/>
+            <div className="success-icon" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
               </svg>
             </div>
-            <h2>Deposit Successful!</h2>
-            <p className="success-amount">+${parseFloat(amount).toFixed(2)}</p>
-            <p className="success-balance">New Balance: ${user?.balance?.toFixed(2) || '0.00'}</p>
+            <h2>Deposit Request Submitted!</h2>
+            <p className="success-amount" style={{ color: '#f59e0b' }}>+${parseFloat(amount).toFixed(2)}</p>
+            <p className="success-balance">Awaiting Admin Approval</p>
+            <p className="success-note">
+              Your deposit will be credited once approved by our team.
+            </p>
             <button className="deposit-done-btn" onClick={handleClose}>
               Done
             </button>
@@ -182,7 +190,7 @@ export default function DepositModal({ isOpen, onClose }) {
             </button>
 
             <p className="deposit-note">
-              Deposits are instant. Minimum $10, Maximum $10,000.
+              Deposits require admin approval. Minimum $10, Maximum $10,000.
             </p>
           </>
         )}

@@ -54,9 +54,9 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.03);
+  background: #0f1410;
   border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .meta-item {
@@ -90,7 +90,7 @@
   color: var(--text-muted);
   text-align: center;
   padding: 8px;
-  background: rgba(255, 255, 255, 0.03);
+  background: #0f1410;
   border-radius: var(--radius-sm);
 }
 
@@ -117,9 +117,9 @@
 
 .promo-terms {
   padding: 16px;
-  background: rgba(0, 0, 0, 0.2);
+  background: #0a0d0a;
   border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .promo-terms h3 {

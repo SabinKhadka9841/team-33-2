@@ -107,16 +107,18 @@ export default function LiveChat() {
   };
 
   useEffect(() => {
-    if (!isAuthenticated || !user?.accountId) return;
+    const accountId = user?.accountId || user?.id;
+    if (!isAuthenticated || !accountId) return;
     const unsubscribe = chatService.subscribe(handleChatEvent);
     return () => {
       unsubscribe();
       chatService.disconnect();
     };
-  }, [isAuthenticated, user?.accountId, handleChatEvent]);
+  }, [isAuthenticated, user?.accountId, user?.id, handleChatEvent]);
 
   const handleStartChat = async () => {
-    if (!user?.accountId) return;
+    const accountId = user?.accountId || user?.id;
+    if (!accountId) return;
 
     setChatStarted(true);
     setConnectionStatus('connecting');
@@ -131,7 +133,6 @@ export default function LiveChat() {
 
     try {
       // Use the accountId from user context
-      const accountId = user.accountId || user.id;
       const result = await chatService.connect(accountId, 'Support Request');
 
       if (result.success) {
@@ -358,9 +359,13 @@ export default function LiveChat() {
                   {msg.agentName ? msg.agentName.charAt(0) : 'A'}
                 </div>
               )}
-              <div className="msg-bubble">
-                <p>{msg.text}</p>
-                <span className="msg-time">{formatTime(msg.time)}</span>
+              <div className="msg-content">
+                <div className="msg-bubble">
+                  <p>{msg.text}</p>
+                </div>
+                {msg.type !== 'system' && (
+                  <span className="msg-time">{formatTime(msg.time)}</span>
+                )}
               </div>
             </div>
           ))}

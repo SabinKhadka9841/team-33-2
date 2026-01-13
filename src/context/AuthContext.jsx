@@ -9,6 +9,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [transactionVersion, setTransactionVersion] = useState(0); // Increments when transactions change
 
   // Check for existing session on mount
   useEffect(() => {
@@ -45,6 +46,87 @@ export function AuthProvider({ children }) {
     loadUser();
   }, []);
 
+  // Periodic balance refresh when authenticated
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const refreshBalance = async () => {
+      const storedAccountId = localStorage.getItem('accountId');
+      if (storedAccountId) {
+        try {
+          const balanceResult = await walletService.getBalance(storedAccountId);
+          if (balanceResult.success) {
+            setUser(prev => {
+              if (!prev) return prev;
+              // Always update if balance changed
+              if (prev.balance !== balanceResult.balance) {
+                const updated = { ...prev, balance: balanceResult.balance, availableBalance: balanceResult.balance };
+                localStorage.setItem('user', JSON.stringify(updated));
+                return updated;
+              }
+              return prev;
+            });
+          }
+        } catch (e) {
+          // Silently fail - will retry on next interval
+        }
+      }
+    };
+
+    // Check localStorage for updates from admin panel
+    const checkLocalStorage = () => {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          const userData = JSON.parse(storedUser);
+          setUser(prev => {
+            if (!prev) return prev;
+            // Update if balance is different
+            if (prev.balance !== userData.balance) {
+              return { ...prev, balance: userData.balance, availableBalance: userData.balance };
+            }
+            return prev;
+          });
+        } catch (e) {
+          // Ignore parse errors
+        }
+      }
+    };
+
+    // Listen for storage events from other tabs
+    const handleStorageChange = (e) => {
+      if (e.key === 'user' && e.newValue) {
+        try {
+          const userData = JSON.parse(e.newValue);
+          setUser(prev => {
+            if (!prev) return prev;
+            if (prev.balance !== userData.balance) {
+              return { ...prev, balance: userData.balance, availableBalance: userData.balance };
+            }
+            return prev;
+          });
+        } catch (e) {
+          // Ignore parse errors
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    // Check localStorage every 1 second for instant updates (same tab)
+    const localStorageInterval = setInterval(checkLocalStorage, 1000);
+    // Refresh from API every 10 seconds (more frequent for better UX)
+    const apiInterval = setInterval(refreshBalance, 10000);
+    // Also refresh immediately
+    refreshBalance();
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(localStorageInterval);
+      clearInterval(apiInterval);
+    };
+  }, [isAuthenticated]);
+
   // Login - supports both old format (username, password) and new format ({ username, password, _userData })
   const login = useCallback(async (usernameOrCredentials, password) => {
     // Handle new format from Signup page: login({ username, password, _userData })
@@ -69,6 +151,8 @@ export function AuthProvider({ children }) {
 
           const userData = {
             accountId: account.accountId,
+            userId: account.userId,
+            walletId: balanceResult.walletId,
             firstName: account.firstName,
             lastName: account.lastName,
             fullName: `${account.firstName} ${account.lastName}`,
@@ -80,6 +164,8 @@ export function AuthProvider({ children }) {
 
           localStorage.setItem('user', JSON.stringify(userData));
           localStorage.setItem('accountId', account.accountId);
+          if (account.userId) localStorage.setItem('userId', account.userId);
+          if (balanceResult.walletId) localStorage.setItem('walletId', balanceResult.walletId);
 
           setUser(userData);
           setIsAuthenticated(true);
@@ -143,6 +229,8 @@ export function AuthProvider({ children }) {
     // Clear external API data
     localStorage.removeItem('user');
     localStorage.removeItem('accountId');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('walletId');
     // Clear legacy auth data
     await authService.logout();
     setUser(null);
@@ -175,10 +263,6 @@ export function AuthProvider({ children }) {
   }, []);
 
   const updateBalance = useCallback((newBalance) => {
-    const balanceValue = typeof newBalance === 'object'
-      ? (newBalance.total ?? newBalance.balance ?? newBalance)
-      : newBalance;
-
     setUser(prev => {
       if (!prev) return null;
 
@@ -230,6 +314,11 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  // Notify that a transaction occurred (deposit, withdraw, win, loss)
+  const notifyTransactionUpdate = useCallback(() => {
+    setTransactionVersion(v => v + 1);
+  }, []);
+
   const value = {
     user,
     loading,
@@ -239,7 +328,9 @@ export function AuthProvider({ children }) {
     logout,
     updateProfile,
     updateBalance,
-    refreshUser
+    refreshUser,
+    transactionVersion,
+    notifyTransactionUpdate
   };
 
   return (

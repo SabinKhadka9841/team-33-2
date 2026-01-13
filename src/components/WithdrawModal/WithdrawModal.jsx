@@ -13,7 +13,7 @@ const withdrawMethods = [
 const quickAmounts = [50, 100, 200, 500]
 
 export default function WithdrawModal({ isOpen, onClose }) {
-  const { user, updateBalance } = useAuth()
+  const { user, notifyTransactionUpdate } = useAuth()
   const { showToast } = useToast()
 
   const [amount, setAmount] = useState('')
@@ -64,15 +64,22 @@ export default function WithdrawModal({ isOpen, onClose }) {
     setStep('processing')
 
     const selectedMethod = withdrawMethods.find(m => m.id === withdrawMethod)
-    const result = await walletService.withdraw(withdrawAmount, selectedMethod?.name || 'Bank Transfer')
+
+    // Create pending withdrawal request for admin approval
+    const result = await walletService.requestWithdrawal(withdrawAmount, selectedMethod?.name || 'Bank Transfer', {
+      bank: selectedMethod?.name || 'Bank Transfer',
+      accountName: bankDetails.accountName,
+      accountNumber: bankDetails.accountNumber,
+      bsb: bankDetails.bsb
+    })
 
     if (result.success) {
       setStep('success')
-      updateBalance(result.newBalance)
-      showToast(`Withdrawal of $${withdrawAmount.toFixed(2)} initiated!`, 'success')
+      showToast(result.message || 'Withdrawal request submitted! Awaiting admin approval.', 'success')
+      notifyTransactionUpdate() // Refresh transaction history
     } else {
       setStep('amount')
-      showToast(result.error || 'Withdrawal failed', 'error')
+      showToast(result.error || 'Withdrawal request failed', 'error')
     }
 
     setLoading(false)
@@ -97,15 +104,16 @@ export default function WithdrawModal({ isOpen, onClose }) {
         {step === 'success' ? (
           <div className="withdraw-success">
             <div className="success-icon" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}>
-              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                <polyline points="22 4 12 14.01 9 11.01"/>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
               </svg>
             </div>
-            <h2>Withdrawal Initiated!</h2>
-            <p className="success-amount">-${parseFloat(amount).toFixed(2)}</p>
-            <p className="success-balance">
-              {withdrawMethod === 'payid' ? 'Funds will arrive instantly' : 'Funds will arrive in 1-3 business days'}
+            <h2>Withdrawal Request Submitted!</h2>
+            <p className="success-amount" style={{ color: '#f59e0b' }}>-${parseFloat(amount).toFixed(2)}</p>
+            <p className="success-balance">Awaiting Admin Approval</p>
+            <p className="success-note">
+              Your withdrawal will be processed once approved by our team.
             </p>
             <button className="withdraw-done-btn" onClick={handleClose}>
               Done
@@ -247,7 +255,7 @@ export default function WithdrawModal({ isOpen, onClose }) {
             </button>
 
             <p className="withdraw-note">
-              Minimum withdrawal $20. Processing time varies by method.
+              Minimum withdrawal $20. Withdrawals require admin approval.
             </p>
           </>
         )}

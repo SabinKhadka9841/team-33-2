@@ -8,7 +8,7 @@ import AuthPrompt from '../components/AuthPrompt/AuthPrompt';
 import './History.css';
 
 export default function History() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, transactionVersion } = useAuth();
   const { t } = useTranslation();
 
   const transactionTypes = [
@@ -63,7 +63,7 @@ export default function History() {
 
   useEffect(() => {
     fetchTransactions();
-  }, [pagination.page, filters, isAuthenticated]);
+  }, [pagination.page, filters, isAuthenticated, transactionVersion]);
 
   // Show auth prompt if not logged in (after all hooks)
   if (!isAuthenticated) {
