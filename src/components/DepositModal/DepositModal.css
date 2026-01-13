@@ -510,6 +510,7 @@
     padding: 0;
     align-items: flex-end;
     overflow: hidden;
+    touch-action: none;
   }
 
   .deposit-modal,
@@ -517,24 +518,25 @@
     max-width: none;
     width: 100%;
     border-radius: 20px 20px 0 0;
-    max-height: 92vh;
-    height: auto;
-    padding: 16px 14px;
-    padding-top: 20px;
-    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    max-height: 90vh;
+    max-height: 90dvh;
+    padding: 16px 14px 60px 14px;
     animation: modalSlideUpMobile 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    overflow-y: auto;
+    overflow-y: scroll;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    display: flex;
-    flex-direction: column;
+    overscroll-behavior-y: contain;
+    touch-action: pan-y;
+    position: relative;
   }
 
-  /* Make inner content scrollable */
-  .deposit-modal > *,
-  .withdraw-modal > * {
-    flex-shrink: 0;
+  /* Add extra space at the bottom for safe area */
+  .deposit-modal::after,
+  .withdraw-modal::after {
+    content: '';
+    display: block;
+    height: env(safe-area-inset-bottom, 20px);
+    min-height: 20px;
   }
 
   @keyframes modalSlideUpMobile {
@@ -826,9 +828,9 @@
 @media (max-width: 360px) {
   .deposit-modal,
   .withdraw-modal {
-    padding: 14px 10px;
-    padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
-    max-height: 94vh;
+    padding: 14px 10px 50px 10px;
+    max-height: 92vh;
+    max-height: 92dvh;
   }
 
   .modal-header h2 {
