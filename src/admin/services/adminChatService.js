@@ -42,19 +42,48 @@ class AdminChatService {
 
   /**
    * Get all chat sessions for admin
-   * Uses localStorage since backend doesn't have GET /api/chat/sessions
+   * Tries backend API first, falls back to localStorage if not available
    */
   async getAllSessions(status = null) {
     try {
-      // Use localStorage workaround since backend doesn't support this endpoint
+      // Try backend API first (in case GET /api/chat/sessions is now implemented)
+      const url = status
+        ? `${CHAT_API_BASE}/api/chat/sessions?status=${status}`
+        : `${CHAT_API_BASE}/api/chat/sessions`;
+
+      const response = await fetch(url);
+
+      if (response.ok) {
+        const data = await response.json();
+        const sessions = Array.isArray(data) ? data : (data.sessions || data.data || []);
+
+        // Merge with local storage data to get userName (backend may not have it)
+        const enrichedSessions = sessions.map(session => {
+          const localSession = chatStorageService.getSession(session.sessionId);
+          return {
+            ...session,
+            userName: localSession?.userName || session.userName || session.accountId,
+          };
+        });
+
+        return {
+          success: true,
+          sessions: enrichedSessions,
+          source: 'api',
+        };
+      }
+
+      // If API returns 404 or other error, fall back to localStorage
+      throw new Error('API not available');
+    } catch (error) {
+      // Fallback to localStorage
+      console.log('Using localStorage fallback for chat sessions');
       const sessions = chatStorageService.getSessionsByStatus(status);
       return {
         success: true,
         sessions: sessions,
+        source: 'localStorage',
       };
-    } catch (error) {
-      console.error('Get all sessions error:', error);
-      return { success: false, error: 'Failed to fetch sessions', sessions: [] };
     }
   }
 
