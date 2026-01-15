@@ -57,6 +57,12 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      // Proxy Admin Accounts API to external server
+      '/api/admin/accounts': {
+        target: 'http://k8s-team33-accounts-4f99fe8193-a4c5da018f68b390.elb.ap-southeast-2.amazonaws.com',
+        changeOrigin: true,
+        secure: false,
+      },
       // Proxy Wallet API through accounts microservice (NOT wallet service directly)
       '/api/wallets': {
         target: 'http://k8s-team33-accounts-4f99fe8193-a4c5da018f68b390.elb.ap-southeast-2.amazonaws.com',

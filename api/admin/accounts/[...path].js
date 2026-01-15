@@ -1,4 +1,4 @@
-// Vercel Serverless Function - Admin Accounts API
+// Vercel Serverless Function - Admin Accounts API (catch-all)
 const BACKEND_URL = 'http://k8s-team33-accounts-4f99fe8193-a4c5da018f68b390.elb.ap-southeast-2.amazonaws.com';
 const DEFAULT_API_KEY = 'team33-admin-secret-key-2024';
 
@@ -12,8 +12,10 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
+  const { path } = req.query;
+  const apiPath = Array.isArray(path) ? path.join('/') : path || '';
   const queryString = req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '';
-  const targetUrl = `${BACKEND_URL}/api/admin/accounts${queryString}`;
+  const targetUrl = `${BACKEND_URL}/api/admin/accounts/${apiPath}${queryString}`;
 
   console.log(`[Admin Accounts] ${req.method} -> ${targetUrl}`);
 

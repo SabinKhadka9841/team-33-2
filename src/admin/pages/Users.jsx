@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FiSearch, FiMessageSquare, FiCreditCard, FiRefreshCw } from 'react-icons/fi';
 
-const API_KEY = 'team33-admin-secret-key-2024';
+const API_KEY = 'team33-admin-secret-key-change-in-prod';
 
 const Users = () => {
   const [formData, setFormData] = useState({
@@ -27,10 +27,17 @@ const Users = () => {
         }
       });
 
+      console.log('Admin accounts response status:', response.status);
+
       if (response.ok) {
         const data = await response.json();
+        console.log('Admin accounts data:', data);
+
+        // Handle both array and object responses
+        const usersArray = Array.isArray(data) ? data : (data.accounts || data.users || data.data || []);
+
         // Transform API data to our format
-        const transformedUsers = data.map(user => ({
+        const transformedUsers = usersArray.map(user => ({
           accountId: user.accountId,
           date: user.createdAt ? new Date(user.createdAt).toLocaleString() : '-',
           name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.accountId,
@@ -50,12 +57,18 @@ const Users = () => {
         setUsers(transformedUsers);
         setFilteredUsers(transformedUsers);
       } else {
-        const errorData = await response.json().catch(() => ({}));
-        setError(errorData.message || 'Failed to fetch users');
+        const errorText = await response.text();
+        console.error('Admin accounts error:', response.status, errorText);
+        try {
+          const errorData = JSON.parse(errorText);
+          setError(`Error ${response.status}: ${errorData.message || errorData.error || 'Failed to fetch users'}`);
+        } catch {
+          setError(`Error ${response.status}: ${errorText || 'Failed to fetch users'}`);
+        }
       }
     } catch (err) {
       console.error('Error fetching users:', err);
-      setError('Network error. Please try again.');
+      setError(`Network error: ${err.message}. Please try again.`);
     } finally {
       setLoading(false);
     }
