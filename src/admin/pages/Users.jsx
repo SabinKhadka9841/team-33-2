@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FiSearch, FiMessageSquare, FiCreditCard, FiRefreshCw } from 'react-icons/fi';
 
-const API_KEY = 'team33-admin-secret-key-change-in-prod';
+const API_KEY = 'team33-admin-secret-key-2024';
 
 const Users = () => {
   const [formData, setFormData] = useState({

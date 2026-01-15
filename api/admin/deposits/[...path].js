@@ -1,7 +1,17 @@
 // Vercel Serverless Function - Admin Deposits API
 const BACKEND_URL = 'http://k8s-team33-accounts-4f99fe8193-a4c5da018f68b390.elb.ap-southeast-2.amazonaws.com';
+const DEFAULT_API_KEY = 'team33-admin-secret-key-2024';
 
 export default async function handler(req, res) {
+  // Enable CORS
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-API-Key');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   const { path } = req.query;
   const apiPath = Array.isArray(path) ? path.join('/') : path || '';
   const queryString = req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '';
@@ -15,7 +25,7 @@ export default async function handler(req, res) {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'X-API-Key': req.headers['x-api-key'] || '',
+        'X-API-Key': req.headers['x-api-key'] || DEFAULT_API_KEY,
       },
     };
 
