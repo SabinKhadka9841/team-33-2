@@ -826,6 +826,7 @@ export const walletService = {
   },
 
   // Update balance directly (for game sync)
+  // IMPORTANT: Always saves to local wallet as backup for ALL accounts
   async updateBalance(newBalance, accountId = null) {
     if (!accountId) {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -836,31 +837,24 @@ export const walletService = {
       return { success: false, error: 'No account ID' };
     }
 
-    if (isLocalAccount(accountId)) {
-      let wallet = getLocalWallet(accountId);
-      if (!wallet) {
-        wallet = { accountId, balance: DEFAULT_BALANCE, currency: 'AUD', transactions: [] };
-      }
-      wallet.balance = Number(newBalance);
-      saveLocalWallet(accountId, wallet);
-
-      // Also update user in localStorage
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      if (user.accountId === accountId) {
-        user.balance = wallet.balance;
-        localStorage.setItem('user', JSON.stringify(user));
-      }
-
-      return { success: true, balance: wallet.balance };
+    // ALWAYS update local wallet as backup (for ALL accounts, not just local)
+    // This prevents balance loss when API is unavailable
+    let wallet = getLocalWallet(accountId);
+    if (!wallet) {
+      wallet = { accountId, balance: DEFAULT_BALANCE, currency: 'AUD', transactions: [] };
     }
+    wallet.balance = Number(newBalance);
+    wallet.updatedAt = new Date().toISOString();
+    saveLocalWallet(accountId, wallet);
 
-    // For external accounts, just update localStorage (external API handles its own balance)
+    // Also update user in localStorage
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     if (user.accountId === accountId) {
-      user.balance = Number(newBalance);
+      user.balance = wallet.balance;
       localStorage.setItem('user', JSON.stringify(user));
     }
-    return { success: true, balance: newBalance };
+
+    return { success: true, balance: wallet.balance };
   },
 
   // Record game win/loss transaction
