@@ -1,5 +1,5 @@
 // Account Service - User account management via external API with localStorage fallback
-const API_KEY = 'team33-admin-secret-key-change-in-prod';
+const API_KEY = 'team33-admin-secret-key-2024';
 const LOCAL_ACCOUNTS_KEY = 'team33_local_accounts';
 
 // Generate unique Account ID (ACC-XXXXXX format)
