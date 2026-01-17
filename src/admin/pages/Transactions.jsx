@@ -322,32 +322,29 @@ const Transactions = () => {
                     <td>{getStatusBadge(tx.status)}</td>
                     <td>
                       {tx.status === 'PENDING' ? (
-                        <div style={{ display: 'flex', gap: '4px' }}>
+                        <div className="action-btns">
                           <button
-                            className="btn btn-primary btn-sm"
+                            className="action-btn approve"
                             onClick={() => handleApprove(tx)}
                             disabled={processing === tx.id}
-                            title="Approve"
                           >
-                            {processing === tx.id ? <FiRefreshCw style={{ animation: 'spin 1s linear infinite' }} /> : <FiCheck />}
+                            {processing === tx.id ? <FiRefreshCw className="spin" /> : <><FiCheck /> Approve</>}
                           </button>
                           <button
-                            className="btn btn-danger btn-sm"
+                            className="action-btn reject"
                             onClick={() => openRejectModal(tx)}
                             disabled={processing === tx.id}
-                            title="Reject"
                           >
-                            <FiX />
+                            <FiX /> Reject
                           </button>
                         </div>
                       ) : (
                         <button
-                          className="btn btn-secondary btn-sm"
+                          className="action-btn view"
                           onClick={() => {
                             setSelectedTransaction(tx);
                             setShowModal(true);
                           }}
-                          title="View Details"
                         >
                           <FiEye /> View
                         </button>
@@ -489,6 +486,67 @@ const Transactions = () => {
         @keyframes spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
+        }
+        .spin {
+          animation: spin 1s linear infinite;
+        }
+        .action-btns {
+          display: flex;
+          gap: 6px;
+          flex-wrap: nowrap;
+        }
+        .action-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 6px 12px;
+          border: none;
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          white-space: nowrap;
+        }
+        .action-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+        .action-btn svg {
+          width: 14px;
+          height: 14px;
+        }
+        .action-btn.approve {
+          background: #10b981;
+          color: white;
+        }
+        .action-btn.approve:hover:not(:disabled) {
+          background: #059669;
+        }
+        .action-btn.reject {
+          background: #ef4444;
+          color: white;
+        }
+        .action-btn.reject:hover:not(:disabled) {
+          background: #dc2626;
+        }
+        .action-btn.view {
+          background: #6b7280;
+          color: white;
+        }
+        .action-btn.view:hover:not(:disabled) {
+          background: #4b5563;
+        }
+        @media (max-width: 768px) {
+          .action-btns {
+            flex-direction: column;
+            gap: 4px;
+          }
+          .action-btn {
+            padding: 8px 10px;
+            font-size: 11px;
+            justify-content: center;
+          }
         }
       `}</style>
     </div>
