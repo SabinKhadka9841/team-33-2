@@ -29,7 +29,7 @@ const BankTx = () => {
       setLoading(true);
 
       // Try to load from localStorage first (cache)
-      const cachedBanks = localStorage.getItem('team33_banks');
+      const cachedBanks = localStorage.getItem('admin_banks');
       if (cachedBanks) {
         try {
           const parsed = JSON.parse(cachedBanks);
@@ -65,7 +65,7 @@ const BankTx = () => {
           // API returns: { id, bankName, accountName, bsb, accountNumber, status, totalTransactedAmount }
           const formattedBanks = activeBanks.map(bank => ({
             id: bank.id || bank.bankCode || bank.bankId,
-            name: `${bank.bankName || bank.name} (${bank.accountName || 'Team33'})`,
+            name: `${bank.bankName || bank.name} (${bank.accountName || 'Account'})`,
             bsb: bank.bsb || '',
             accountNumber: bank.accountNumber || '',
             accountName: bank.accountName || '',
@@ -75,7 +75,7 @@ const BankTx = () => {
           console.log('Loaded banks from API:', formattedBanks);
 
           // Save to localStorage for caching
-          localStorage.setItem('team33_banks', JSON.stringify(formattedBanks));
+          localStorage.setItem('admin_banks', JSON.stringify(formattedBanks));
 
           setBanks(formattedBanks);
         } else {
@@ -108,7 +108,7 @@ const BankTx = () => {
     const fetchTransactions = async () => {
 
       setTxLoading(true);
-      const cacheKey = `team33_tx_${selectedBank || 'all'}_${selectedDate || 'all'}`;
+      const cacheKey = `admin_tx_${selectedBank || 'all'}_${selectedDate || 'all'}`;
 
       // Try to load from localStorage first
       const cachedTx = localStorage.getItem(cacheKey);
@@ -509,7 +509,7 @@ const BankTx = () => {
               className="btn btn-secondary btn-sm"
               onClick={() => {
                 // Clear cache and refetch
-                const cacheKey = `team33_tx_${selectedBank || 'all'}_${selectedDate || 'all'}`;
+                const cacheKey = `admin_tx_${selectedBank || 'all'}_${selectedDate || 'all'}`;
                 localStorage.removeItem(cacheKey);
                 setRefreshKey(prev => prev + 1);
               }}

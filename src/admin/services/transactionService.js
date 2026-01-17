@@ -8,9 +8,9 @@
 const API_KEY = 'team33-admin-secret-key-2024';
 
 // LocalStorage keys for withdrawals (no API yet)
-const PENDING_TRANSACTIONS_KEY = 'team33_pending_transactions';
-const ALL_TRANSACTIONS_KEY = 'team33_all_transactions';
-const USER_CACHE_KEY = 'team33_user_cache';
+const PENDING_TRANSACTIONS_KEY = 'admin_pending_transactions';
+const ALL_TRANSACTIONS_KEY = 'admin_all_transactions';
+const USER_CACHE_KEY = 'admin_user_cache';
 
 /**
  * NOTE: Wallet balance is now updated internally by the backend when deposits/withdrawals are approved.
@@ -52,7 +52,7 @@ const lookupUserInfo = async (accountId) => {
   }
 
   // Check local accounts
-  const localAccounts = JSON.parse(localStorage.getItem('team33_local_accounts') || '[]');
+  const localAccounts = JSON.parse(localStorage.getItem('local_accounts') || '[]');
   const localAccount = localAccounts.find(acc => acc.accountId === accountId);
   if (localAccount) {
     const userInfo = {
@@ -504,7 +504,7 @@ export const transactionService = {
    */
   async updateUserBalance(accountId, amount, type) {
     try {
-      const walletsKey = 'team33_local_wallets';
+      const walletsKey = 'local_wallets';
       const walletsStr = localStorage.getItem(walletsKey);
       const wallets = walletsStr ? JSON.parse(walletsStr) : {};
 
@@ -523,7 +523,7 @@ export const transactionService = {
       if (!wallet) {
         // Get current balance from user object
         let currentBalance = 0;
-        const userKeys = ['team33_user', 'user'];
+        const userKeys = ['current_user', 'user'];
         for (const key of userKeys) {
           const userStr = localStorage.getItem(key);
           if (userStr) {
@@ -564,7 +564,7 @@ export const transactionService = {
       localStorage.setItem(walletsKey, JSON.stringify(wallets));
 
       // Also update the current user if they're logged in (check both localStorage keys)
-      const userKeys = ['team33_user', 'user'];
+      const userKeys = ['current_user', 'user'];
       for (const key of userKeys) {
         const userStr = localStorage.getItem(key);
         if (userStr) {

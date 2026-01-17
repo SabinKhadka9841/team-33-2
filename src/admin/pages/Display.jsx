@@ -7,7 +7,7 @@ const defaultSettings = {
   banners: [],
   popups: [],
   announcement: {
-    text: 'Welcome to Team33! New members get 100% bonus on first deposit. Play responsibly.',
+    text: 'Welcome! New members get 100% bonus on first deposit. Play responsibly.',
     speed: 'normal',
     color: '#d4af37',
     enabled: true
