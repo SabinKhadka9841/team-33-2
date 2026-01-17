@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FiSave, FiDroplet, FiSun, FiMoon, FiRefreshCw, FiCheck } from 'react-icons/fi';
 
-const THEME_KEY = 'team33_theme_settings';
+const THEME_KEY = 'admin_theme_settings';
 
 const defaultTheme = {
   primaryColor: '#d4af37',
@@ -247,18 +247,6 @@ const Theme = () => {
         </div>
       </div>
 
-      {/* Note */}
-      <div style={{
-        marginTop: '20px',
-        padding: '15px 20px',
-        background: '#fef3c7',
-        borderRadius: '8px',
-        border: '1px solid #fcd34d',
-        color: '#92400e',
-        fontSize: '14px'
-      }}>
-        <strong>Note:</strong> Theme settings are stored locally. Backend API integration required for these settings to affect the live site.
-      </div>
     </div>
   );
 };

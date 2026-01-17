@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { FiSave, FiRefreshCw, FiAlertCircle, FiCheck, FiInbox } from 'react-icons/fi';
+import { FiSave, FiRefreshCw, FiCheck, FiInbox } from 'react-icons/fi';
 
-const REBATE_SETTINGS_KEY = 'team33_rebate_settings';
+const REBATE_SETTINGS_KEY = 'admin_rebate_settings';
 
 const defaultSettings = {
   slotRebate: 0.5,
@@ -45,23 +45,6 @@ const Rebate = () => {
         <button className="btn btn-primary" onClick={handleSave}>
           {saved ? <><FiCheck /> Saved!</> : <><FiSave /> Save Settings</>}
         </button>
-      </div>
-
-      {/* Notice Banner */}
-      <div style={{
-        padding: '12px 16px',
-        background: '#fef3c7',
-        border: '1px solid #fcd34d',
-        borderRadius: '8px',
-        marginBottom: '20px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-        color: '#92400e',
-        fontSize: '13px'
-      }}>
-        <FiAlertCircle />
-        <span>Rebate calculations require backend API integration. Settings are stored locally.</span>
       </div>
 
       {/* Rebate Settings */}
@@ -156,7 +139,7 @@ const Rebate = () => {
               <tr>
                 <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
                   <FiInbox size={32} style={{ marginBottom: '10px', opacity: 0.5 }} />
-                  <p style={{ margin: 0 }}>Rebate history will appear here when backend API is connected</p>
+                  <p style={{ margin: 0 }}>No rebate history.</p>
                 </td>
               </tr>
             </tbody>

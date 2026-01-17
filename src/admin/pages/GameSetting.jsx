@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FiSave, FiSliders, FiPercent, FiDollarSign, FiCheck } from 'react-icons/fi';
 
-const GAME_SETTINGS_KEY = 'team33_game_settings';
+const GAME_SETTINGS_KEY = 'admin_game_settings';
 
 const defaultSettings = {
   slotMinBet: 1,
@@ -172,18 +172,6 @@ const GameSetting = () => {
         </div>
       </div>
 
-      {/* Warning */}
-      <div style={{
-        marginTop: '20px',
-        padding: '15px 20px',
-        background: '#fef3c7',
-        borderRadius: '8px',
-        border: '1px solid #fcd34d',
-        color: '#92400e',
-        fontSize: '14px'
-      }}>
-        <strong>Note:</strong> Settings are stored locally. Backend API integration required for these settings to affect live games.
-      </div>
     </div>
   );
 };

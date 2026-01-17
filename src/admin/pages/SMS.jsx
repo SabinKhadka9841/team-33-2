@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { FiSend, FiUsers, FiMessageCircle, FiClock, FiInbox } from 'react-icons/fi';
 
-const SMS_HISTORY_KEY = 'team33_sms_history';
+const SMS_HISTORY_KEY = 'admin_sms_history';
 
 const defaultTemplates = [
-  { id: 1, name: 'Welcome Message', content: 'Welcome to Team33! Your account has been created successfully.' },
+  { id: 1, name: 'Welcome Message', content: 'Welcome! Your account has been created successfully.' },
   { id: 2, name: 'Deposit Confirmation', content: 'Your deposit of {amount} has been received. Thank you!' },
   { id: 3, name: 'Withdrawal Confirmation', content: 'Your withdrawal of {amount} has been processed.' },
   { id: 4, name: 'Promotion Alert', content: 'New promotion available! {promo_details}' },
@@ -94,7 +94,7 @@ const SMS = () => {
               </small>
             </div>
             <button className="btn btn-primary" style={{ width: '100%', marginTop: '15px' }} disabled>
-              <FiSend /> Send SMS (Requires API)
+              <FiSend /> Send SMS
             </button>
           </div>
         </div>
@@ -161,7 +161,7 @@ const SMS = () => {
                 <tr>
                   <td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
                     <FiInbox size={32} style={{ marginBottom: '10px', opacity: 0.5 }} />
-                    <p style={{ margin: 0 }}>No SMS history. SMS data will appear when backend API is connected.</p>
+                    <p style={{ margin: 0 }}>No SMS history.</p>
                   </td>
                 </tr>
               ) : (

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FiSearch, FiRefreshCw, FiPlay, FiPause, FiInbox } from 'react-icons/fi';
 
-const PROVIDERS_KEY = 'team33_game_providers';
+const PROVIDERS_KEY = 'admin_game_providers';
 
 const GameKiosk = () => {
   const [providers, setProviders] = useState([]);
@@ -26,7 +26,7 @@ const GameKiosk = () => {
       <div className="page-header">
         <h1 className="page-title">Game Kiosk</h1>
         <button className="btn btn-primary" disabled>
-          <FiRefreshCw /> Sync Providers (Requires API)
+          <FiRefreshCw /> Sync Providers
         </button>
       </div>
 
@@ -34,7 +34,7 @@ const GameKiosk = () => {
       {providers.length === 0 ? (
         <div className="card" style={{ marginBottom: '20px', padding: '40px', textAlign: 'center' }}>
           <FiInbox size={32} style={{ marginBottom: '10px', opacity: 0.5, color: '#6b7280' }} />
-          <p style={{ margin: 0, color: '#6b7280' }}>No game providers configured. Provider data will appear when backend API is connected.</p>
+          <p style={{ margin: 0, color: '#6b7280' }}>No game providers configured.</p>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '15px', marginBottom: '20px' }}>
@@ -103,7 +103,7 @@ const GameKiosk = () => {
                 <tr>
                   <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
                     <FiInbox size={32} style={{ marginBottom: '10px', opacity: 0.5 }} />
-                    <p style={{ margin: 0 }}>No recent game activity. Game data will appear when backend API is connected.</p>
+                    <p style={{ margin: 0 }}>No recent game activity.</p>
                   </td>
                 </tr>
               ) : (

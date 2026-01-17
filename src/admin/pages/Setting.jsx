@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { FiSave, FiGlobe, FiDollarSign, FiClock, FiShield, FiMail, FiAlertCircle, FiCheck } from 'react-icons/fi';
+import { FiSave, FiGlobe, FiDollarSign, FiClock, FiShield, FiMail, FiCheck } from 'react-icons/fi';
 
-const SETTINGS_KEY = 'team33_admin_settings';
+const SETTINGS_KEY = 'admin_settings';
 
 const defaultSettings = {
-  siteName: 'Team33',
-  siteUrl: 'https://team33.mx',
+  siteName: '',
+  siteUrl: '',
   currency: 'AUD',
   timezone: 'Australia/Sydney',
   minDeposit: 10,
@@ -14,8 +14,8 @@ const defaultSettings = {
   maxWithdraw: 10000,
   withdrawFee: 0,
   dailyWithdrawLimit: 50000,
-  supportEmail: 'support@team33.mx',
-  supportPhone: '+61 400 000 000',
+  supportEmail: '',
+  supportPhone: '',
   maintenanceMode: false
 };
 
@@ -53,23 +53,6 @@ const Setting = () => {
         <button className="btn btn-primary" onClick={handleSave}>
           {saved ? <><FiCheck /> Saved!</> : <><FiSave /> Save Changes</>}
         </button>
-      </div>
-
-      {/* Notice Banner */}
-      <div style={{
-        padding: '12px 16px',
-        background: '#fef3c7',
-        border: '1px solid #fcd34d',
-        borderRadius: '8px',
-        marginBottom: '20px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-        color: '#92400e',
-        fontSize: '13px'
-      }}>
-        <FiAlertCircle />
-        <span>Settings are stored locally. Backend API integration required for production use.</span>
       </div>
 
       {/* General Settings */}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { FiPlus, FiEdit2, FiTrash2, FiShield, FiSave, FiCheck, FiAlertCircle, FiInbox } from 'react-icons/fi';
+import { FiPlus, FiEdit2, FiTrash2, FiShield, FiSave, FiCheck, FiInbox } from 'react-icons/fi';
 
-const STAFF_KEY = 'team33_admin_staff';
+const STAFF_KEY = 'admin_staff';
 
 const defaultRoles = [
   { name: 'Super Admin', permissions: 'Full Access', color: 'purple' },
@@ -75,23 +75,6 @@ const ManageStaff = () => {
         <button className="btn btn-primary" onClick={() => { resetForm(); setShowModal(true); }}>
           <FiPlus /> Add Staff
         </button>
-      </div>
-
-      {/* Notice Banner */}
-      <div style={{
-        padding: '12px 16px',
-        background: '#fef3c7',
-        border: '1px solid #fcd34d',
-        borderRadius: '8px',
-        marginBottom: '20px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-        color: '#92400e',
-        fontSize: '13px'
-      }}>
-        <FiAlertCircle />
-        <span>Staff data is stored locally. Backend API integration required for production use.</span>
       </div>
 
       {/* Roles Overview */}

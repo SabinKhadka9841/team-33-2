@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FiSave, FiImage, FiType, FiLayout, FiToggleRight, FiToggleLeft, FiCheck, FiInbox } from 'react-icons/fi';
 
-const DISPLAY_KEY = 'team33_display_settings';
+const DISPLAY_KEY = 'admin_display_settings';
 
 const defaultSettings = {
   banners: [],
@@ -79,7 +79,7 @@ const Display = () => {
             Banner Management
           </h3>
           <button className="btn btn-secondary" style={{ padding: '8px 16px' }} disabled>
-            + Add Banner (Requires API)
+            + Add Banner
           </button>
         </div>
         <div className="table-wrapper">
@@ -98,7 +98,7 @@ const Display = () => {
                 <tr>
                   <td colSpan="5" style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
                     <FiInbox size={32} style={{ marginBottom: '10px', opacity: 0.5 }} />
-                    <p style={{ margin: 0 }}>No banners configured. Banner data will appear when backend API is connected.</p>
+                    <p style={{ margin: 0 }}>No banners configured.</p>
                   </td>
                 </tr>
               ) : (
@@ -152,7 +152,7 @@ const Display = () => {
             Popup Management
           </h3>
           <button className="btn btn-secondary" style={{ padding: '8px 16px' }} disabled>
-            + Add Popup (Requires API)
+            + Add Popup
           </button>
         </div>
         <div className="table-wrapper">
@@ -170,7 +170,7 @@ const Display = () => {
                 <tr>
                   <td colSpan="4" style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
                     <FiInbox size={32} style={{ marginBottom: '10px', opacity: 0.5 }} />
-                    <p style={{ margin: 0 }}>No popups configured. Popup data will appear when backend API is connected.</p>
+                    <p style={{ margin: 0 }}>No popups configured.</p>
                   </td>
                 </tr>
               ) : (

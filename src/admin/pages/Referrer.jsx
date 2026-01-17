@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FiSearch, FiUsers, FiDollarSign, FiUserPlus, FiInbox } from 'react-icons/fi';
 
-const REFERRER_KEY = 'team33_referrers';
+const REFERRER_KEY = 'admin_referrers';
 
 const Referrer = () => {
   const [referrers, setReferrers] = useState([]);
@@ -102,7 +102,7 @@ const Referrer = () => {
               <tr>
                 <td colSpan="8" style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
                   <FiInbox size={32} style={{ marginBottom: '10px', opacity: 0.5 }} />
-                  <p style={{ margin: 0 }}>No referrers found. Referrer data will appear when backend API is connected.</p>
+                  <p style={{ margin: 0 }}>No referrers found.</p>
                 </td>
               </tr>
             ) : (

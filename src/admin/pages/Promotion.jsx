@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FiPlus, FiEdit2, FiTrash2, FiEye, FiToggleLeft, FiToggleRight, FiGift, FiInbox } from 'react-icons/fi';
 
-const PROMOTIONS_KEY = 'team33_promotions';
+const PROMOTIONS_KEY = 'admin_promotions';
 
 const Promotion = () => {
   const [promotions, setPromotions] = useState([]);
@@ -40,7 +40,7 @@ const Promotion = () => {
       <div className="page-header">
         <h1 className="page-title">Promotion Management</h1>
         <button className="btn btn-primary" disabled>
-          <FiPlus /> Create Promotion (Requires API)
+          <FiPlus /> Create Promotion
         </button>
       </div>
 
@@ -92,7 +92,7 @@ const Promotion = () => {
                 <tr>
                   <td colSpan="10" style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
                     <FiInbox size={32} style={{ marginBottom: '10px', opacity: 0.5 }} />
-                    <p style={{ margin: 0 }}>No promotions configured. Promotion data will appear when backend API is connected.</p>
+                    <p style={{ margin: 0 }}>No promotions configured.</p>
                   </td>
                 </tr>
               ) : (
