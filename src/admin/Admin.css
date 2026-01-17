@@ -3218,3 +3218,848 @@ img, video, iframe {
     margin: 16px;
   }
 }
+
+/* =====================================================
+   NEW ADMIN PAGES - BASE STYLES
+   ===================================================== */
+
+/* Page header */
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  display: flex;
+  align-items: center;
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.page-header p {
+  color: #666;
+}
+
+/* Two column grid */
+.two-column-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Messaging grid */
+.messaging-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+/* Stats row */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.stat-value {
+  display: block;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.stat-label {
+  display: block;
+  font-size: 12px;
+  color: #666;
+}
+
+/* Action bar */
+.action-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+/* Filter bar */
+.filter-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+/* Filter section */
+.filter-section {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.filter-section .form-row {
+  flex: 1;
+  min-width: 200px;
+}
+
+/* Setting row and activity row */
+.setting-row,
+.activity-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.setting-row:last-child,
+.activity-row:last-child {
+  border-bottom: none;
+}
+
+.setting-row p,
+.activity-row p {
+  color: #666;
+  font-size: 12px;
+  margin: 4px 0 0;
+}
+
+/* Password input */
+.password-input {
+  position: relative;
+}
+
+.password-input .form-input {
+  padding-right: 45px;
+}
+
+.password-input .toggle-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+}
+
+/* Match indicator */
+.match-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.match-indicator.match {
+  color: #10b981;
+}
+
+.match-indicator.no-match {
+  color: #ef4444;
+}
+
+/* Requirements list */
+.requirements-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+}
+
+.requirements-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  color: #666;
+}
+
+.requirements-list li.met {
+  color: #10b981;
+}
+
+/* Password tips */
+.password-tips {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.password-tips h4 {
+  margin: 0 0 12px;
+  font-size: 14px;
+}
+
+.password-tips ul {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  color: #666;
+}
+
+.password-tips li {
+  margin-bottom: 6px;
+}
+
+/* Tool card */
+.tool-card {
+  padding: 24px;
+  text-align: center;
+}
+
+.tool-card h3 {
+  margin: 0 0 8px;
+}
+
+.tool-card p {
+  color: #666;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.tool-icon {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+/* Setting card */
+.setting-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+}
+
+.setting-card h4 {
+  margin: 10px 0 5px;
+}
+
+.setting-card p {
+  color: #666;
+  font-size: 13px;
+  margin-bottom: 15px;
+}
+
+/* Plugins grid */
+.plugins-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.plugin-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.plugin-icon {
+  width: 60px;
+  height: 60px;
+  background: #f0f7ff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #3b82f6;
+  margin-bottom: 16px;
+}
+
+.plugin-card h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.plugin-card p {
+  color: #666;
+  font-size: 13px;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.plugin-meta {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #666;
+}
+
+.plugin-meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.plugin-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+.price {
+  font-weight: 600;
+  color: #10b981;
+}
+
+/* Changelog */
+.changelog-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.release-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.release-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.release-date {
+  margin-left: 12px;
+  color: #666;
+  font-size: 14px;
+}
+
+.release-type {
+  font-size: 11px;
+  color: #999;
+  font-weight: 500;
+}
+
+.changes-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.changes-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+}
+
+.change-type {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.type-feature {
+  background: #dbeafe;
+  color: #3b82f6;
+}
+
+.type-improvement {
+  background: #dcfce7;
+  color: #10b981;
+}
+
+.type-fix {
+  background: #fef3c7;
+  color: #f59e0b;
+}
+
+/* Template item */
+.template-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.template-item:last-of-type {
+  border-bottom: none;
+}
+
+.template-item p {
+  font-size: 12px;
+  color: #666;
+  margin: 4px 0 0;
+}
+
+/* Checkbox label */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+/* =====================================================
+   NEW ADMIN PAGES - MOBILE OPTIMIZATIONS
+   ===================================================== */
+
+/* Page header mobile optimization */
+@media (max-width: 768px) {
+  .page-header h1 {
+    font-size: 18px !important;
+    flex-wrap: wrap;
+  }
+
+  .page-header p {
+    font-size: 13px;
+  }
+
+  /* Two column grid mobile */
+  .two-column-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Messaging grid mobile */
+  .messaging-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Filter section mobile */
+  .filter-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-section .btn {
+    margin-left: 0 !important;
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Action bar mobile - wrap buttons */
+@media (max-width: 768px) {
+  .action-bar {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  .action-bar .btn {
+    flex: 1;
+    min-width: 120px;
+    justify-content: center;
+  }
+}
+
+/* Filter bar mobile */
+@media (max-width: 768px) {
+  .filter-bar {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .filter-bar input,
+  .filter-bar select,
+  .filter-bar .form-input,
+  .filter-bar .form-select {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+}
+
+/* Stats row mobile - stack vertically */
+@media (max-width: 768px) {
+  .stats-row {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .stat-card {
+    padding: 16px !important;
+  }
+
+  .stat-value {
+    font-size: 20px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .stat-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px !important;
+  }
+}
+
+/* Password page - stack columns */
+@media (max-width: 768px) {
+  .content-inner > div[style*="grid-template-columns: 1fr 1fr"],
+  .content-inner > div[style*="gridTemplateColumns"] {
+    display: block !important;
+  }
+
+  .content-inner > div[style*="grid-template-columns: 1fr 1fr"] > .card,
+  .content-inner > div[style*="gridTemplateColumns"] > .card {
+    margin-bottom: 16px;
+  }
+}
+
+/* Password input field mobile */
+@media (max-width: 768px) {
+  .password-input {
+    position: relative;
+  }
+
+  .password-input .form-input {
+    padding-right: 50px !important;
+    font-size: 16px !important; /* Prevent zoom on iOS */
+  }
+
+  .password-input .toggle-btn {
+    padding: 12px !important;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Requirements list mobile */
+@media (max-width: 768px) {
+  .requirements-list li {
+    font-size: 13px !important;
+    padding: 10px 0 !important;
+  }
+
+  .password-tips {
+    padding: 14px !important;
+  }
+
+  .password-tips ul {
+    font-size: 12px !important;
+  }
+}
+
+/* Setting/activity rows mobile */
+@media (max-width: 768px) {
+  .setting-row,
+  .activity-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    padding: 14px 0 !important;
+  }
+
+  .setting-row > div:first-child,
+  .activity-row > div:first-child {
+    width: 100%;
+  }
+
+  .setting-row .toggle-btn,
+  .activity-row .badge {
+    align-self: flex-end;
+  }
+}
+
+/* Tool cards and setting cards mobile */
+@media (max-width: 768px) {
+  .tool-card,
+  .setting-card {
+    padding: 20px !important;
+  }
+
+  .tool-card h3,
+  .setting-card h4 {
+    font-size: 15px !important;
+  }
+
+  .tool-card p,
+  .setting-card p {
+    font-size: 12px !important;
+  }
+}
+
+/* Plugin grid mobile */
+@media (max-width: 768px) {
+  .plugins-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .plugin-card {
+    padding: 20px !important;
+  }
+
+  .plugin-icon {
+    width: 50px !important;
+    height: 50px !important;
+  }
+
+  .plugin-card h3 {
+    font-size: 15px !important;
+  }
+
+  .plugin-meta {
+    gap: 12px !important;
+    font-size: 12px !important;
+  }
+}
+
+/* Changelog mobile */
+@media (max-width: 768px) {
+  .changelog-list {
+    gap: 16px !important;
+  }
+
+  .release-card {
+    padding: 16px !important;
+  }
+
+  .release-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .release-date {
+    margin-left: 0 !important;
+    display: block;
+  }
+
+  .changes-list li {
+    font-size: 13px !important;
+    flex-wrap: wrap;
+  }
+
+  .change-type {
+    font-size: 10px !important;
+  }
+}
+
+/* Messaging page mobile */
+@media (max-width: 768px) {
+  .message-form,
+  .messaging-form {
+    padding: 16px !important;
+  }
+
+  .message-form .form-group,
+  .messaging-form .form-group {
+    margin-bottom: 16px !important;
+  }
+
+  .message-form textarea,
+  .messaging-form textarea {
+    min-height: 120px !important;
+    font-size: 16px !important;
+  }
+}
+
+/* API keys table mobile */
+@media (max-width: 768px) {
+  .data-table code {
+    font-size: 10px !important;
+    word-break: break-all;
+    max-width: 120px;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .data-table td > div[style*="display: flex"] {
+    flex-wrap: wrap;
+    gap: 4px !important;
+  }
+}
+
+/* Domain/Payment action buttons mobile */
+@media (max-width: 768px) {
+  td .btn-sm {
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+  }
+
+  td div[style*="flex"][style*="gap"] {
+    gap: 4px !important;
+  }
+}
+
+/* Touch-friendly toggles */
+@media (max-width: 768px) {
+  .toggle-btn {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+
+/* Form inputs mobile - prevent iOS zoom */
+@media (max-width: 768px) {
+  .form-input,
+  .form-select,
+  input[type="text"],
+  input[type="password"],
+  input[type="email"],
+  input[type="number"],
+  input[type="tel"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* Card header mobile */
+@media (max-width: 768px) {
+  .card-header {
+    padding: 14px 16px !important;
+  }
+
+  .card-header h3 {
+    font-size: 14px !important;
+  }
+
+  .card-header[style*="display: flex"] {
+    flex-direction: column !important;
+    gap: 10px !important;
+    align-items: flex-start !important;
+  }
+
+  .card-header .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Card body mobile */
+@media (max-width: 768px) {
+  .card-body {
+    padding: 16px !important;
+  }
+}
+
+/* Match indicator mobile */
+@media (max-width: 768px) {
+  .match-indicator {
+    font-size: 12px !important;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+  .page-header h1 {
+    font-size: 16px !important;
+  }
+
+  .page-header h1 svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .card {
+    border-radius: 8px !important;
+  }
+
+  .btn {
+    padding: 10px 14px !important;
+    font-size: 13px !important;
+  }
+
+  .btn-sm {
+    padding: 6px 10px !important;
+    font-size: 11px !important;
+  }
+
+  .badge {
+    font-size: 10px !important;
+    padding: 3px 6px !important;
+  }
+}
+
+/* =====================================================
+   BUTTON ICON FIXES - Ensure icons visible in buttons
+   ===================================================== */
+
+/* Base icon sizing inside buttons */
+.btn svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: block;
+}
+
+.btn-sm svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Icon-only buttons (approve/deny action buttons) */
+.btn-sm:has(svg):not(:has(span)):not(:has(text)) {
+  padding: 8px !important;
+  min-width: 32px;
+  min-height: 32px;
+}
+
+/* Mobile-specific fixes for action buttons */
+@media (max-width: 768px) {
+  /* Ensure icons are visible in buttons */
+  .btn svg,
+  .btn-sm svg {
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
+    display: block !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Icon-only action buttons - larger touch targets */
+  td .btn-sm {
+    padding: 10px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* Action button container */
+  td > div[style*="display: flex"],
+  td > div[style*="flex"] {
+    gap: 6px !important;
+  }
+}
+
+/* Very small screens - even better touch targets */
+@media (max-width: 480px) {
+  td .btn-sm {
+    padding: 8px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+  }
+
+  td .btn-sm svg {
+    width: 14px !important;
+    height: 14px !important;
+    min-width: 14px !important;
+    min-height: 14px !important;
+  }
+}

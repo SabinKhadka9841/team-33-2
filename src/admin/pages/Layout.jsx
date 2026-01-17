@@ -35,49 +35,6 @@ const Layout = () => {
           </div>
         </div>
       </div>
-
-      <style>{`
-        .page-header {
-          margin-bottom: 24px;
-        }
-        .page-header h1 {
-          display: flex;
-          align-items: center;
-          font-size: 24px;
-          margin-bottom: 8px;
-        }
-        .page-header p {
-          color: #666;
-        }
-        .card-header {
-          padding: 16px 20px;
-          border-bottom: 1px solid #eee;
-        }
-        .card-header h3 {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          margin: 0;
-          font-size: 16px;
-        }
-        .card-body {
-          padding: 20px;
-        }
-        .setting-card {
-          background: #f8f9fa;
-          border-radius: 8px;
-          padding: 24px;
-          text-align: center;
-        }
-        .setting-card h4 {
-          margin: 10px 0 5px;
-        }
-        .setting-card p {
-          color: #666;
-          font-size: 13px;
-          margin-bottom: 15px;
-        }
-      `}</style>
     </div>
   );
 };

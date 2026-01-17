@@ -44,15 +44,6 @@ const Tools = () => {
           <button className="btn btn-primary btn-sm">Create Link</button>
         </div>
       </div>
-
-      <style>{`
-        .page-header { margin-bottom: 24px; }
-        .page-header h1 { display: flex; align-items: center; font-size: 24px; margin-bottom: 8px; }
-        .page-header p { color: #666; }
-        .tool-card { padding: 24px; text-align: center; }
-        .tool-card h3 { margin: 0 0 8px; }
-        .tool-card p { color: #666; font-size: 13px; margin-bottom: 16px; }
-      `}</style>
     </div>
   );
 };

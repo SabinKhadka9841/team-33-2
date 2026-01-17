@@ -99,16 +99,6 @@ const Domain = () => {
           </table>
         </div>
       </div>
-
-      <style>{`
-        .page-header { margin-bottom: 24px; }
-        .page-header h1 { display: flex; align-items: center; font-size: 24px; margin-bottom: 8px; }
-        .page-header p { color: #666; }
-        .action-bar { display: flex; gap: 10px; margin-bottom: 16px; }
-        .card-header { padding: 16px 20px; border-bottom: 1px solid #eee; }
-        .card-header h3 { margin: 0; font-size: 16px; }
-        .card-body { padding: 20px; }
-      `}</style>
     </div>
   );
 };

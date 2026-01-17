@@ -63,10 +63,11 @@ const Transactions = () => {
 
     setProcessing(transaction.id);
     try {
-      // Pass deposit info to avoid extra API call
+      // Pass transaction info to avoid extra API call
       const result = await transactionService.approveTransaction(transaction.id, '', {
         accountId: transaction.accountId,
-        amount: transaction.amount
+        amount: transaction.amount,
+        originalId: transaction.originalId // For withdrawals with prefixed IDs
       });
       if (result.success) {
         fetchTransactions();
@@ -87,7 +88,7 @@ const Transactions = () => {
 
     setProcessing(selectedTransaction.id);
     try {
-      const result = await transactionService.rejectTransaction(selectedTransaction.id, rejectReason);
+      const result = await transactionService.rejectTransaction(selectedTransaction.id, rejectReason, selectedTransaction.originalId);
       if (result.success) {
         setShowModal(false);
         setSelectedTransaction(null);

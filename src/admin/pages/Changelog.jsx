@@ -92,25 +92,6 @@ const Changelog = () => {
           </div>
         ))}
       </div>
-
-      <style>{`
-        .page-header { margin-bottom: 24px; }
-        .page-header h1 { display: flex; align-items: center; font-size: 24px; margin-bottom: 8px; }
-        .page-header p { color: #666; }
-        .changelog-list { display: flex; flex-direction: column; gap: 20px; }
-        .release-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        .release-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #eee; }
-        .release-date { margin-left: 12px; color: #666; font-size: 14px; }
-        .release-type { font-size: 11px; color: #999; font-weight: 500; }
-        .changes-list { list-style: none; padding: 0; margin: 0; }
-        .changes-list li { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
-        .change-type { font-size: 11px; font-weight: 500; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; }
-        .type-feature { background: #dbeafe; color: #3b82f6; }
-        .type-improvement { background: #dcfce7; color: #10b981; }
-        .type-fix { background: #fef3c7; color: #f59e0b; }
-        .badge-primary { background: #3b82f6; color: white; }
-        .badge-danger { background: #ef4444; color: white; }
-      `}</style>
     </div>
   );
 };

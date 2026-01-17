@@ -24,6 +24,19 @@ import Display from './pages/Display'
 import Theme from './pages/Theme'
 import Dashboard from './pages/Dashboard'
 import Members from './pages/Members'
+import Layout from './pages/Layout'
+import ManagePage from './pages/ManagePage'
+import AdminTool from './pages/AdminTool'
+import Tools from './pages/Tools'
+import Security from './pages/Security'
+import Blacklist from './pages/Blacklist'
+import Payment from './pages/Payment'
+import Messaging from './pages/Messaging'
+import Domain from './pages/Domain'
+import ManageAPI from './pages/ManageAPI'
+import Marketplace from './pages/Marketplace'
+import Changelog from './pages/Changelog'
+import Password from './pages/Password'
 import './Admin.css'
 
 createRoot(document.getElementById('root')).render(
@@ -54,6 +67,20 @@ createRoot(document.getElementById('root')).render(
             <Route path="setting" element={<Setting />} />
             <Route path="display" element={<Display />} />
             <Route path="theme" element={<Theme />} />
+            {/* New pages */}
+            <Route path="layout" element={<Layout />} />
+            <Route path="manage-page" element={<ManagePage />} />
+            <Route path="admin-tool" element={<AdminTool />} />
+            <Route path="tools" element={<Tools />} />
+            <Route path="security" element={<Security />} />
+            <Route path="blacklist" element={<Blacklist />} />
+            <Route path="payment" element={<Payment />} />
+            <Route path="messaging" element={<Messaging />} />
+            <Route path="domain" element={<Domain />} />
+            <Route path="manage-api" element={<ManageAPI />} />
+            <Route path="marketplace" element={<Marketplace />} />
+            <Route path="changelog" element={<Changelog />} />
+            <Route path="password" element={<Password />} />
           </Route>
         </Routes>
       </Router>

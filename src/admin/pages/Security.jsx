@@ -27,7 +27,7 @@ const Security = () => {
         <p>Manage security and access controls</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+      <div className="two-column-grid">
         <div className="card">
           <div className="card-header">
             <h3><FiShield /> Security Options</h3>
@@ -71,19 +71,6 @@ const Security = () => {
           </div>
         </div>
       </div>
-
-      <style>{`
-        .page-header { margin-bottom: 24px; }
-        .page-header h1 { display: flex; align-items: center; font-size: 24px; margin-bottom: 8px; }
-        .page-header p { color: #666; }
-        .card-header { padding: 16px 20px; border-bottom: 1px solid #eee; }
-        .card-header h3 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; }
-        .card-body { padding: 16px 20px; }
-        .setting-row, .activity-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
-        .setting-row:last-child, .activity-row:last-child { border-bottom: none; }
-        .setting-row p, .activity-row p { color: #666; font-size: 12px; margin: 4px 0 0; }
-        .toggle-btn { background: none; border: none; cursor: pointer; padding: 0; }
-      `}</style>
     </div>
   );
 };

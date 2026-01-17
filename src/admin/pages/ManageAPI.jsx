@@ -113,15 +113,6 @@ const ManageAPI = () => {
           </table>
         </div>
       </div>
-
-      <style>{`
-        .page-header { margin-bottom: 24px; }
-        .page-header h1 { display: flex; align-items: center; font-size: 24px; margin-bottom: 8px; }
-        .page-header p { color: #666; }
-        .card-header { padding: 16px 20px; border-bottom: 1px solid #eee; }
-        .card-header h3 { margin: 0; font-size: 16px; }
-        code { background: #f1f1f1; padding: 2px 6px; border-radius: 4px; }
-      `}</style>
     </div>
   );
 };

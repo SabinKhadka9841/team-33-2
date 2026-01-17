@@ -58,14 +58,6 @@ const ManagePage = () => {
           </table>
         </div>
       </div>
-
-      <style>{`
-        .page-header { margin-bottom: 24px; }
-        .page-header h1 { display: flex; align-items: center; font-size: 24px; margin-bottom: 8px; }
-        .page-header p { color: #666; }
-        .action-bar { margin-bottom: 16px; }
-        code { background: #f1f1f1; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
-      `}</style>
     </div>
   );
 };

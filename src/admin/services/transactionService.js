@@ -229,8 +229,14 @@ export const transactionService = {
       // Transform API withdrawals to our format and enrich with user info
       const withdrawals = await Promise.all(apiWithdrawals.map(async (w) => {
         const userInfo = await lookupUserInfo(w.accountId);
+        // Ensure withdrawal ID has WD prefix for consistent handling
+        const rawId = w.withdrawId || w.withdrawalId || w.requestId || w.id;
+        const withdrawId = rawId && !String(rawId).startsWith('WD') && !String(rawId).startsWith('WTH')
+          ? `WD${rawId}`
+          : String(rawId);
         return {
-          id: w.withdrawId || w.withdrawalId,
+          id: withdrawId,
+          originalId: rawId, // Keep original ID for API calls
           accountId: w.accountId,
           username: userInfo.username,
           phone: userInfo.phone,
@@ -458,20 +464,36 @@ export const transactionService = {
         // Get withdrawal details for local UI update
         let accountId = txInfo?.accountId;
         let amount = txInfo?.amount;
+        // Use originalId for API calls (strip WD prefix if we added it)
+        let apiId = txInfo?.originalId || transactionId;
+        if (apiId.startsWith('WD') && !txInfo?.originalId) {
+          // Try without the prefix first (in case backend uses numeric IDs)
+          apiId = transactionId.replace(/^WD/, '');
+        }
 
         if (!accountId || !amount) {
-          const withdrawalResponse = await fetch(`/api/admin/withdrawals/${transactionId}`, {
+          // Try fetching with original ID first, then with full ID
+          let withdrawalResponse = await fetch(`/api/admin/withdrawals/${apiId}`, {
             headers: { 'X-API-Key': API_KEY }
           });
+          if (!withdrawalResponse.ok && apiId !== transactionId) {
+            withdrawalResponse = await fetch(`/api/admin/withdrawals/${transactionId}`, {
+              headers: { 'X-API-Key': API_KEY }
+            });
+          }
           if (withdrawalResponse.ok) {
             const withdrawal = await withdrawalResponse.json();
             accountId = withdrawal.accountId;
             amount = withdrawal.amount;
+            // Use the ID format that worked
+            if (withdrawal.withdrawId || withdrawal.withdrawalId) {
+              apiId = withdrawal.withdrawId || withdrawal.withdrawalId;
+            }
           }
         }
 
         // Call approve API - backend handles wallet debit internally
-        const response = await fetch(`/api/admin/withdrawals/${transactionId}/approve`, {
+        const response = await fetch(`/api/admin/withdrawals/${apiId}/approve`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -567,9 +589,10 @@ export const transactionService = {
    * Uses: POST /api/admin/deposits/{requestId}/reject or /api/admin/withdrawals/{requestId}/reject
    * @param {string} transactionId - Transaction ID to reject
    * @param {string} reason - Rejection reason
+   * @param {string} originalId - Original ID for API calls (optional, for withdrawals with prefixed IDs)
    * @returns {Promise<Object>} - Result
    */
-  async rejectTransaction(transactionId, reason = '') {
+  async rejectTransaction(transactionId, reason = '', originalId = null) {
     // Check if it's a deposit (starts with DEP)
     if (transactionId.startsWith('DEP')) {
       try {
@@ -609,7 +632,12 @@ export const transactionService = {
     // Check if it's a withdrawal (starts with WD or WTH)
     if (transactionId.startsWith('WD') || transactionId.startsWith('WTH')) {
       try {
-        const response = await fetch(`/api/admin/withdrawals/${transactionId}/reject`, {
+        // Use originalId for API calls (strip WD prefix if we added it)
+        let apiId = originalId || transactionId;
+        if (apiId.startsWith('WD') && !originalId) {
+          apiId = transactionId.replace(/^WD/, '');
+        }
+        const response = await fetch(`/api/admin/withdrawals/${apiId}/reject`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

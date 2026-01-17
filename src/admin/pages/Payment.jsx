@@ -87,19 +87,6 @@ const Payment = () => {
           </table>
         </div>
       </div>
-
-      <style>{`
-        .page-header { margin-bottom: 24px; }
-        .page-header h1 { display: flex; align-items: center; font-size: 24px; margin-bottom: 8px; }
-        .page-header p { color: #666; }
-        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: #fff; border-radius: 8px; padding: 20px; display: flex; align-items: center; gap: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .stat-value { display: block; font-size: 24px; font-weight: 600; }
-        .stat-label { display: block; font-size: 12px; color: #666; }
-        .card-header { padding: 16px 20px; border-bottom: 1px solid #eee; }
-        .card-header h3 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; }
-        .toggle-btn { background: none; border: none; cursor: pointer; padding: 0; }
-      `}</style>
     </div>
   );
 };

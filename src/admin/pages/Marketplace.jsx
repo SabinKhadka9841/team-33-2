@@ -55,23 +55,6 @@ const Marketplace = () => {
           </div>
         ))}
       </div>
-
-      <style>{`
-        .page-header { margin-bottom: 24px; }
-        .page-header h1 { display: flex; align-items: center; font-size: 24px; margin-bottom: 8px; }
-        .page-header p { color: #666; }
-        .filter-bar { display: flex; gap: 12px; margin-bottom: 24px; }
-        .form-input, .form-select { padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; }
-        .plugins-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .plugin-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        .plugin-icon { width: 60px; height: 60px; background: #f0f7ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #3b82f6; margin-bottom: 16px; }
-        .plugin-card h3 { margin: 0 0 8px; font-size: 16px; }
-        .plugin-card p { color: #666; font-size: 13px; margin-bottom: 16px; line-height: 1.5; }
-        .plugin-meta { display: flex; gap: 16px; margin-bottom: 16px; font-size: 13px; color: #666; }
-        .plugin-meta span { display: flex; align-items: center; gap: 4px; }
-        .plugin-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid #eee; }
-        .price { font-weight: 600; color: #10b981; }
-      `}</style>
     </div>
   );
 };

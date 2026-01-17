@@ -19,7 +19,7 @@ const Messaging = () => {
         <p>Send notifications and messages to users</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px' }}>
+      <div className="messaging-grid">
         <div className="card">
           <div className="card-header">
             <h3><FiSend /> Send Message</h3>
@@ -107,24 +107,6 @@ const Messaging = () => {
           </div>
         </div>
       </div>
-
-      <style>{`
-        .page-header { margin-bottom: 24px; }
-        .page-header h1 { display: flex; align-items: center; font-size: 24px; margin-bottom: 8px; }
-        .page-header p { color: #666; }
-        .card-header { padding: 16px 20px; border-bottom: 1px solid #eee; }
-        .card-header h3 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; }
-        .card-body { padding: 20px; }
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
-        .form-input { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; }
-        textarea.form-input { resize: vertical; }
-        .btn-group { display: flex; gap: 8px; }
-        .checkbox-label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
-        .template-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
-        .template-item:last-of-type { border-bottom: none; }
-        .template-item p { font-size: 12px; color: #666; margin: 4px 0 0; }
-      `}</style>
     </div>
   );
 };

@@ -54,16 +54,6 @@ const AdminTool = () => {
           <button className="btn btn-primary">Check Status</button>
         </div>
       </div>
-
-      <style>{`
-        .page-header { margin-bottom: 24px; }
-        .page-header h1 { display: flex; align-items: center; font-size: 24px; margin-bottom: 8px; }
-        .page-header p { color: #666; }
-        .tool-card { padding: 24px; text-align: center; }
-        .tool-icon { width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
-        .tool-card h3 { margin: 0 0 8px; }
-        .tool-card p { color: #666; font-size: 14px; margin-bottom: 16px; }
-      `}</style>
     </div>
   );
 };
