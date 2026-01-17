@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { TranslationProvider } from '../context/TranslationContext'
 import AdminLayout from './AdminLayout'
 import Login from './pages/Login'
 import Users from './pages/Users'
@@ -27,33 +28,35 @@ import './Admin.css'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Router>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/" element={<AdminLayout />}>
-          <Route index element={<Navigate to="/users" replace />} />
-          <Route path="users" element={<Users />} />
-          <Route path="members" element={<Members />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="transactions" element={<Transactions />} />
-          <Route path="bank-tx" element={<BankTx />} />
-          <Route path="chatlist" element={<ChatList />} />
-          <Route path="chat/:sessionId" element={<ChatView />} />
-          <Route path="reports" element={<Reports />} />
-          <Route path="rebate" element={<Rebate />} />
-          <Route path="referrer" element={<Referrer />} />
-          <Route path="commission" element={<Commission />} />
-          <Route path="sms" element={<SMS />} />
-          <Route path="manage-bank" element={<ManageBank />} />
-          <Route path="manage-staff" element={<ManageStaff />} />
-          <Route path="promotion" element={<Promotion />} />
-          <Route path="game-kiosk" element={<GameKiosk />} />
-          <Route path="game-setting" element={<GameSetting />} />
-          <Route path="setting" element={<Setting />} />
-          <Route path="display" element={<Display />} />
-          <Route path="theme" element={<Theme />} />
-        </Route>
-      </Routes>
-    </Router>
+    <TranslationProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<AdminLayout />}>
+            <Route index element={<Navigate to="/users" replace />} />
+            <Route path="users" element={<Users />} />
+            <Route path="members" element={<Members />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="transactions" element={<Transactions />} />
+            <Route path="bank-tx" element={<BankTx />} />
+            <Route path="chatlist" element={<ChatList />} />
+            <Route path="chat/:sessionId" element={<ChatView />} />
+            <Route path="reports" element={<Reports />} />
+            <Route path="rebate" element={<Rebate />} />
+            <Route path="referrer" element={<Referrer />} />
+            <Route path="commission" element={<Commission />} />
+            <Route path="sms" element={<SMS />} />
+            <Route path="manage-bank" element={<ManageBank />} />
+            <Route path="manage-staff" element={<ManageStaff />} />
+            <Route path="promotion" element={<Promotion />} />
+            <Route path="game-kiosk" element={<GameKiosk />} />
+            <Route path="game-setting" element={<GameSetting />} />
+            <Route path="setting" element={<Setting />} />
+            <Route path="display" element={<Display />} />
+            <Route path="theme" element={<Theme />} />
+          </Route>
+        </Routes>
+      </Router>
+    </TranslationProvider>
   </StrictMode>,
 )

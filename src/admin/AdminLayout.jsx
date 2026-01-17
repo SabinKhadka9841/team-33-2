@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
+import { useTranslation } from '../context/TranslationContext';
 import {
   FiMessageSquare,
   FiRepeat,
@@ -35,9 +36,9 @@ import {
 
 const AdminLayout = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [language, setLanguage] = useState('English');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const { t, currentLanguage, languages, changeLanguage } = useTranslation();
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -60,48 +61,48 @@ const AdminLayout = () => {
     return `--- ${date.getDate().toString().padStart(2, '0')} January ${date.getFullYear()} (${day}) ${date.toLocaleTimeString('en-GB')} --- To get latest Maintenance Announcement click →`;
   };
 
-  // First section of sidebar menu (from first screenshot)
+  // First section of sidebar menu
   const sidebarMenuTop = [
-    { icon: <FiEdit />, label: 'LAYOUT', path: '/layout' },
-    { icon: <FiFile />, label: 'MANAGE PAGE', path: '/manage-page' },
-    { icon: <FiMonitor />, label: 'ADMIN TOOL', path: '/admin-tool' },
-    { icon: <FiTool />, label: 'TOOLS', path: '/tools' },
-    { icon: <FiLock />, label: 'SECURITY', path: '/security' },
-    { icon: <FiUserX />, label: 'BLACKLIST', path: '/blacklist' },
-    { icon: <FiShoppingCart />, label: 'PAYMENT', path: '/payment' },
-    { icon: <FiMessageCircle />, label: 'MESSAGING', path: '/messaging' },
-    { icon: <FiGlobe />, label: 'DOMAIN', path: '/domain' },
-    { icon: <FiCode />, label: 'MANAGE API', path: '/manage-api' },
-    { icon: <FiPackage />, label: 'MARKET PLACE', path: '/marketplace' },
-    { icon: <FiFileText />, label: 'CHANGELOG', path: '/changelog' },
-    { icon: <FiKey />, label: 'PASSWORD', path: '/password' },
+    { icon: <FiEdit />, labelKey: 'layout', path: '/layout' },
+    { icon: <FiFile />, labelKey: 'managePage', path: '/manage-page' },
+    { icon: <FiMonitor />, labelKey: 'adminTool', path: '/admin-tool' },
+    { icon: <FiTool />, labelKey: 'tools', path: '/tools' },
+    { icon: <FiLock />, labelKey: 'securityMenu', path: '/security' },
+    { icon: <FiUserX />, labelKey: 'blacklist', path: '/blacklist' },
+    { icon: <FiShoppingCart />, labelKey: 'paymentMenu', path: '/payment' },
+    { icon: <FiMessageCircle />, labelKey: 'messagingMenu', path: '/messaging' },
+    { icon: <FiGlobe />, labelKey: 'domain', path: '/domain' },
+    { icon: <FiCode />, labelKey: 'manageAPI', path: '/manage-api' },
+    { icon: <FiPackage />, labelKey: 'marketplace', path: '/marketplace' },
+    { icon: <FiFileText />, labelKey: 'changelog', path: '/changelog' },
+    { icon: <FiKey />, labelKey: 'passwordMenu', path: '/password' },
   ];
 
-  // Second section of sidebar menu (from second screenshot)
+  // Second section of sidebar menu
   const sidebarMenuBottom = [
-    { icon: <FiGift />, label: 'REBATE', path: '/rebate' },
-    { icon: <FiUsers />, label: 'REFERRER', path: '/referrer' },
-    { icon: <FiDollarSign />, label: 'COMMISSION', path: '/commission' },
-    { icon: <FiMail />, label: 'SMS', path: '/sms' },
-    { icon: <FiCreditCard />, label: 'MANAGE BANK', path: '/manage-bank' },
-    { icon: <FiUserCheck />, label: 'MANAGE STAFF', path: '/manage-staff' },
-    { icon: <FiSpeaker />, label: 'PROMOTION', path: '/promotion' },
-    { icon: <FiMonitor />, label: 'GAME KIOSK', path: '/game-kiosk' },
-    { icon: <FiSettings />, label: 'GAME SETTING', path: '/game-setting' },
-    { icon: <FiSettings />, label: 'SETTING', path: '/setting' },
-    { icon: <FiLayout />, label: 'DISPLAY', path: '/display' },
-    { icon: <FiDroplet />, label: 'THEME', path: '/theme' },
+    { icon: <FiGift />, labelKey: 'rebate', path: '/rebate' },
+    { icon: <FiUsers />, labelKey: 'referrer', path: '/referrer' },
+    { icon: <FiDollarSign />, labelKey: 'commissionMenu', path: '/commission' },
+    { icon: <FiMail />, labelKey: 'sms', path: '/sms' },
+    { icon: <FiCreditCard />, labelKey: 'manageBank', path: '/manage-bank' },
+    { icon: <FiUserCheck />, labelKey: 'manageStaff', path: '/manage-staff' },
+    { icon: <FiSpeaker />, labelKey: 'promotionMenu', path: '/promotion' },
+    { icon: <FiMonitor />, labelKey: 'gameKiosk', path: '/game-kiosk' },
+    { icon: <FiSettings />, labelKey: 'gameSetting', path: '/game-setting' },
+    { icon: <FiSettings />, labelKey: 'settingMenu', path: '/setting' },
+    { icon: <FiLayout />, labelKey: 'displayMenu', path: '/display' },
+    { icon: <FiDroplet />, labelKey: 'themeMenu', path: '/theme' },
   ];
 
   const leftMenuItems = [
-    { label: 'Transaction', path: '/transactions', hasArrow: true },
+    { labelKey: 'transactions', path: '/transactions', hasArrow: true },
     { label: 'Customer', path: '/customers' },
     { label: 'Top Customer', path: '/top-customers' },
-    { label: 'Promotion', path: '/promotion-report' },
+    { labelKey: 'promotionMenu', path: '/promotion-report' },
     { label: 'Bank', path: '/bank-report' },
-    { label: 'Commission', path: '/commission-report' },
+    { labelKey: 'commissionMenu', path: '/commission-report' },
     { label: 'Payment Gateway', path: '/payment-gateway' },
-    { label: 'Rebate / Angpao', path: '/rebate-report' },
+    { labelKey: 'rebate', path: '/rebate-report' },
     { label: 'Manual / Other', path: '/manual' },
     { label: 'Lucky Number', path: '/lucky-number' },
     { label: 'Lucky Draw 4D', path: '/lucky-draw' },
@@ -123,6 +124,10 @@ const AdminLayout = () => {
     setSidebarOpen(false);
   };
 
+  const handleLanguageChange = (e) => {
+    changeLanguage(e.target.value);
+  };
+
   return (
     <div className="admin-layout">
       {/* Announcement Bar */}
@@ -133,19 +138,19 @@ const AdminLayout = () => {
       {/* Top Header with Icons */}
       <header className="top-header">
         <div className="header-icons">
-          <NavLink to="/chatlist" className={({ isActive }) => `header-icon-btn ${isActive ? 'active' : ''}`}>
+          <NavLink to="/chatlist" className={({ isActive }) => `header-icon-btn ${isActive ? 'active' : ''}`} title={t('chatList')}>
             <FiMessageSquare size={28} />
           </NavLink>
-          <NavLink to="/transactions" className={({ isActive }) => `header-icon-btn ${isActive ? 'active' : ''}`}>
+          <NavLink to="/transactions" className={({ isActive }) => `header-icon-btn ${isActive ? 'active' : ''}`} title={t('transactions')}>
             <FiRepeat size={28} />
           </NavLink>
-          <NavLink to="/bank-tx" className={({ isActive }) => `header-icon-btn ${isActive ? 'active' : ''}`}>
+          <NavLink to="/bank-tx" className={({ isActive }) => `header-icon-btn ${isActive ? 'active' : ''}`} title={t('bankTransactions')}>
             <FiGrid size={28} />
           </NavLink>
-          <NavLink to="/users" className={({ isActive }) => `header-icon-btn ${isActive ? 'active' : ''}`}>
+          <NavLink to="/users" className={({ isActive }) => `header-icon-btn ${isActive ? 'active' : ''}`} title={t('users')}>
             <FiUser size={28} />
           </NavLink>
-          <NavLink to="/reports" className={({ isActive }) => `header-icon-btn ${isActive ? 'active' : ''}`}>
+          <NavLink to="/reports" className={({ isActive }) => `header-icon-btn ${isActive ? 'active' : ''}`} title={t('reports')}>
             <FiTrendingUp size={28} />
           </NavLink>
           <button className="header-icon-btn" onClick={toggleSidebar}>
@@ -166,10 +171,12 @@ const AdminLayout = () => {
         </div>
 
         <div className="sidebar-top-section">
-          <select value={language} onChange={(e) => setLanguage(e.target.value)} className="sidebar-select">
-            <option>English</option>
-            <option>Thai</option>
-            <option>Chinese</option>
+          <select value={currentLanguage} onChange={handleLanguageChange} className="sidebar-select">
+            {languages.map(lang => (
+              <option key={lang.code} value={lang.code}>
+                {lang.flag} {lang.name}
+              </option>
+            ))}
           </select>
           <div className="sidebar-time">
             System: +08:00 Device: +11:00
@@ -186,7 +193,7 @@ const AdminLayout = () => {
                 onClick={closeSidebar}
               >
                 {item.icon}
-                <span>{item.label}</span>
+                <span>{t(item.labelKey)}</span>
               </NavLink>
             ))}
           </ul>
@@ -204,7 +211,7 @@ const AdminLayout = () => {
                 onClick={closeSidebar}
               >
                 {item.icon}
-                <span>{item.label}</span>
+                <span>{t(item.labelKey)}</span>
               </NavLink>
             ))}
           </ul>
@@ -217,7 +224,7 @@ const AdminLayout = () => {
         {showLeftSidebar && (
           <aside className="left-sidebar">
             <div className="left-sidebar-header">
-              <FiTrendingUp /> Reports
+              <FiTrendingUp /> {t('reports')}
             </div>
             <ul className="left-sidebar-menu">
               {leftMenuItems.map((item, index) => (
@@ -228,7 +235,7 @@ const AdminLayout = () => {
                     `left-sidebar-item ${isActive ? 'active' : ''} ${item.hasArrow ? 'has-arrow' : ''}`
                   }
                 >
-                  {item.label}
+                  {item.labelKey ? t(item.labelKey) : item.label}
                 </NavLink>
               ))}
             </ul>

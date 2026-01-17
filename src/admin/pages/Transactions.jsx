@@ -301,7 +301,26 @@ const Transactions = () => {
                     </td>
                     <td><strong>${tx.amount?.toLocaleString() || 0}</strong></td>
                     <td>
-                      {tx.bank && tx.bank !== 'N/A' ? (
+                      {tx.type === 'WITHDRAWAL' ? (
+                        <div>
+                          {tx.bank && tx.bank !== 'N/A' && (
+                            <span className="badge badge-info">{tx.bank}</span>
+                          )}
+                          {tx.payId && (
+                            <div style={{ fontSize: '11px', color: '#666', marginTop: '2px' }}>
+                              PayID: {tx.payId}
+                            </div>
+                          )}
+                          {tx.bsb && tx.bankAccount && (
+                            <div style={{ fontSize: '11px', color: '#666', marginTop: '2px' }}>
+                              {tx.bsb} / {tx.bankAccount}
+                            </div>
+                          )}
+                          {!tx.bank && !tx.payId && !tx.bsb && (
+                            <span style={{ color: '#999' }}>-</span>
+                          )}
+                        </div>
+                      ) : tx.bank && tx.bank !== 'N/A' ? (
                         <span className="badge badge-info">{tx.bank}</span>
                       ) : (
                         <span style={{ color: '#999' }}>-</span>
@@ -390,8 +409,30 @@ const Transactions = () => {
               {selectedTransaction.phone && <p><strong>Phone:</strong> {selectedTransaction.phone}</p>}
               <p><strong>Type:</strong> {selectedTransaction.type}</p>
               <p><strong>Amount:</strong> ${selectedTransaction.amount?.toLocaleString()}</p>
-              <p><strong>Bank:</strong> {selectedTransaction.bank || 'N/A'}</p>
-              {selectedTransaction.bankAccount && <p><strong>Account:</strong> {selectedTransaction.bankAccount}</p>}
+
+              {/* Bank details for withdrawals */}
+              {selectedTransaction.type === 'WITHDRAWAL' && (
+                <>
+                  <p><strong>Bank:</strong> {selectedTransaction.bank || 'N/A'}</p>
+                  {selectedTransaction.accountHolderName && (
+                    <p><strong>Account Holder:</strong> {selectedTransaction.accountHolderName}</p>
+                  )}
+                  {selectedTransaction.bsb && (
+                    <p><strong>BSB:</strong> {selectedTransaction.bsb}</p>
+                  )}
+                  {selectedTransaction.bankAccount && (
+                    <p><strong>Account Number:</strong> {selectedTransaction.bankAccount}</p>
+                  )}
+                  {selectedTransaction.payId && (
+                    <p><strong>PayID:</strong> {selectedTransaction.payId}</p>
+                  )}
+                </>
+              )}
+
+              {selectedTransaction.type !== 'WITHDRAWAL' && (
+                <p><strong>Bank:</strong> {selectedTransaction.bank || 'N/A'}</p>
+              )}
+
               <p><strong>Payment Method:</strong> {selectedTransaction.paymentMethod || 'N/A'}</p>
               <p><strong>Status:</strong> {getStatusBadge(selectedTransaction.status)}</p>
               <p><strong>Date:</strong> {formatDate(selectedTransaction.createdAt)}</p>
